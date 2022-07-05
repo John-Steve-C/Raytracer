@@ -3,6 +3,15 @@
 version = 3
 
 [[package]]
+name = "Leonard"
+version = "0.1.0"
+dependencies = [
+ "console",
+ "image",
+ "indicatif",
+]
+
+[[package]]
 name = "adler"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -361,15 +370,6 @@ dependencies = [
  "crossbeam-deque",
  "crossbeam-utils",
  "num_cpus",
-]
-
-[[package]]
-name = "raytracer"
-version = "0.1.0"
-dependencies = [
- "console",
- "image",
- "indicatif",
 ]
 
 [[package]]
