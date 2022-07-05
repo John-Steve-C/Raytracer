@@ -1,5 +1,5 @@
 [package]
-name = "Leonard"
+name = "leonard"
 version = "0.1.0"
 authors = ["Pseudo Photograph Company of ACM <ppca@ppca.com>"]
 edition = "2018"
