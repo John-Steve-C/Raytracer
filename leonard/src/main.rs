@@ -5,14 +5,28 @@ use image::{ImageBuffer, RgbImage};
 use console::style;
 use indicatif::{ProgressBar, ProgressStyle};
 
+use crate::vec3::Vec3;
+use crate::ray::Ray;
+pub mod vec3; //调用模块
+pub mod ray;
+
 fn main() {
     print!("{}[2J", 27 as char); // Clear screen
     print!("{esc}[2J{esc}[1;1H", esc = 27 as char); // Set cursor position as 1,1
 
-    let height = 800;
-    let width = 800;
+    let height = 225;
+    let width = 400;
     let quality = 60; // From 0 to 100
     let path = "output/output.jpg";
+
+    let view_height = 2.;
+    let view_width = 32. / 9.;
+    let focal_length = 1.;
+    let origin = Vec3::new(0., 0., 0.);
+    let horizontal = Vec3::new(view_width, 0., 0.);
+    let vertical = Vec3::new(0., view_height, 0.);
+    let lower_left_corner = origin - horizontal / 2. - vertical / 2. 
+                        - Vec3::new(0., 0., focal_length);
 
     println!(
         "Image size: {}\nJPEG quality: {}",
@@ -34,12 +48,18 @@ fn main() {
         .progress_chars("#>-"));
 
     // Generate image
-    for y in 0..height {
+    for y in (0..height).rev() {
         for x in 0..width {
+            let u = x as f64 / width as f64;
+            let v = y as f64 / height as f64;
+            
+            let r = Ray{orig : origin, dir : lower_left_corner + horizontal * u + vertical * v - origin};
+            let color = Ray::ray_color(r);
+
             let pixel_color = [
-                (y as f32 / height as f32 * 255.).floor() as u8,
-                ((x + height - y) as f32 / (height + width) as f32 * 255.).floor() as u8,
-                (x as f32 / height as f32 * 255.).floor() as u8,
+                (color.x * 255.).floor() as u8,
+                (color.y * 255.).floor() as u8,
+                (color.z * 255.).floor() as u8,
             ];
             let pixel = img.get_pixel_mut(x, height - y - 1);
             *pixel = image::Rgb(pixel_color);
