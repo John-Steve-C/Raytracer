@@ -67,7 +67,7 @@ fn main() {
         }
     }
     progress.finish();
-
+    
     // Output image to file
     println!("Ouput image as \"{}\"", style(path).yellow());
     let output_image = image::DynamicImage::ImageRgb8(img);
