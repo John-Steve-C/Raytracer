@@ -5,10 +5,10 @@ use image::{ImageBuffer, RgbImage};
 use console::style;
 use indicatif::{ProgressBar, ProgressStyle};
 
-use crate::vec3::Vec3;
 use crate::ray::Ray;
-pub mod vec3; //调用模块
+use crate::vec3::Vec3;
 pub mod ray;
+pub mod vec3; //调用模块
 
 fn main() {
     print!("{}[2J", 27 as char); // Clear screen
@@ -25,8 +25,8 @@ fn main() {
     let origin = Vec3::new(0., 0., 0.);
     let horizontal = Vec3::new(view_width, 0., 0.);
     let vertical = Vec3::new(0., view_height, 0.);
-    let lower_left_corner = origin - horizontal / 2. - vertical / 2. 
-                        - Vec3::new(0., 0., focal_length);
+    let lower_left_corner =
+        origin - horizontal / 2. - vertical / 2. - Vec3::new(0., 0., focal_length);
 
     println!(
         "Image size: {}\nJPEG quality: {}",
@@ -52,8 +52,11 @@ fn main() {
         for x in 0..width {
             let u = x as f64 / width as f64;
             let v = y as f64 / height as f64;
-            
-            let r = Ray{orig : origin, dir : lower_left_corner + horizontal * u + vertical * v - origin};
+
+            let r = Ray {
+                orig: origin,
+                dir: lower_left_corner + horizontal * u + vertical * v - origin,
+            };
             let color = Ray::ray_color(r);
 
             let pixel_color = [
@@ -67,7 +70,7 @@ fn main() {
         }
     }
     progress.finish();
-    
+
     // Output image to file
     println!("Ouput image as \"{}\"", style(path).yellow());
     let output_image = image::DynamicImage::ImageRgb8(img);
