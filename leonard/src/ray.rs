@@ -31,10 +31,12 @@ impl Ray {
         if t > 0. {
             let n = Vec3::unit_vector(r.at(t) - Vec3::new(0., 0., -1.));
             //求出法向量
-            return Vec3::new(n.x + 1., n.y + 1., n.z + 1.) * 0.5;
+            Vec3::new(n.x + 1., n.y + 1., n.z + 1.) * 0.5
+            // 所有的 return 都可以省略
+        } else {
+            let unit_dir = Vec3::unit_vector(r.dir);
+            let t = 0.5 * (unit_dir.y + 1.0);
+            Vec3::new(1., 1., 1.) * (1. - t) + Vec3::new(0.5, 0.7, 1.) * t
         }
-        let unit_dir = Vec3::unit_vector(r.dir);
-        let t = 0.5 * (unit_dir.y + 1.0);
-        return Vec3::new(1., 1., 1.) * (1. - t) + Vec3::new(0.5, 0.7, 1.) * t;
     }
 }
