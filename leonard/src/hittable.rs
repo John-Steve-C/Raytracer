@@ -2,10 +2,10 @@ use crate::{ray::Ray, vec3::Vec3};
 
 #[derive(Copy, Clone, Default)]
 pub struct HitRecord {
-    pub p: Vec3,
+    pub p: Vec3,      //碰撞点
     pub normal: Vec3, //法向量
-    pub t: f64,
-    pub front_face: bool,
+    pub t: f64,       
+    pub front_face: bool,   //方向是否为外侧
 }
 
 impl HitRecord {
