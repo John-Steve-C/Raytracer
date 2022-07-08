@@ -5,11 +5,7 @@ use image::{ImageBuffer, RgbImage};
 use console::style;
 use indicatif::{ProgressBar, ProgressStyle};
 
-use crate::{
-    ray::Ray,
-    vec3::Vec3,
-    hittable::HittableList
-};
+use crate::{hittable::HittableList, ray::Ray, vec3::Vec3};
 pub mod hittable;
 pub mod ray;
 pub mod sphere;
@@ -65,8 +61,8 @@ fn main() {
     // Generate image
     for y in (0..height).rev() {
         for x in 0..width {
-            let u = x as f64 / width as f64;
-            let v = y as f64 / height as f64;
+            let u = x as f64 / (width - 1) as f64;
+            let v = y as f64 / (height - 1) as f64;
 
             let r = Ray {
                 orig: origin,
