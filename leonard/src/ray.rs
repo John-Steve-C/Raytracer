@@ -1,9 +1,6 @@
-use std::{f64::INFINITY};
+use std::f64::INFINITY;
 
-use crate::{
-    vec3::Vec3,
-    hittable::Hittable
-};
+use crate::{hittable::Hittable, vec3::Vec3};
 
 #[derive(Copy, Clone, Default)]
 pub struct Ray {
@@ -18,11 +15,12 @@ impl Ray {
 }
 
 impl Ray {
-    pub fn ray_color<T>(r: Ray, world : &T) -> Vec3 
-    where T : Hittable + 'static
+    pub fn ray_color<T>(r: Ray, world: &T) -> Vec3
+    where
+        T: Hittable + 'static,
     {
-        if let Some(temp) = world.hit(r, 0., INFINITY) {
-            (temp.normal + Vec3::new(1., 1., 1.)) * 0.5
+        if let Some(temp_rec) = world.hit(r, 0., INFINITY) {
+            (temp_rec.normal + Vec3::new(1., 1., 1.)) * 0.5
         } else {
             let unit_dir = Vec3::unit_vector(r.dir);
             let t = 0.5 * (unit_dir.y + 1.);
