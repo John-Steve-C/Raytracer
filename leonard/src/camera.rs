@@ -2,18 +2,19 @@ use crate::{ray::Ray, vec3::Vec3};
 
 #[derive(Copy, Clone)]
 pub struct Camera {
-    pub origin: Vec3,
-    pub lower_left_corner: Vec3,
-    pub horizontal: Vec3,
-    pub vertical: Vec3,
+    pub origin: Vec3,            //原点
+    pub lower_left_corner: Vec3, //左下角
+    pub horizontal: Vec3,        //水平向量
+    pub vertical: Vec3,          //竖直
 }
 
 impl Camera {
     pub fn new() -> Camera {
-        let aspect_ratio = 16. / 9.;
+        //充当默认构造函数
+        let aspect_ratio = 16. / 9.; //长宽比
         let view_height = 2.;
         let view_width = aspect_ratio * view_height;
-        let focal_length = 1.;
+        let focal_length = 1.; //焦距
 
         let origin = Vec3::new(0., 0., 0.);
         let horizontal = Vec3::new(view_width, 0., 0.);

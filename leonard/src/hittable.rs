@@ -2,14 +2,15 @@ use crate::{ray::Ray, vec3::Vec3};
 
 #[derive(Copy, Clone, Default)]
 pub struct HitRecord {
-    pub p: Vec3,      //碰撞点
-    pub normal: Vec3, //法向量
-    pub t: f64,       
-    pub front_face: bool,   //方向是否为外侧
+    pub p: Vec3,          //碰撞点
+    pub normal: Vec3,     //法向量
+    pub t: f64,           //对应光线的 at(t)
+    pub front_face: bool, //方向是否为外侧
 }
 
 impl HitRecord {
     pub fn set_face_normal(&mut self, r: Ray, outward_normal: Vec3) {
+        //求出normal和front_face
         self.front_face = Vec3::dot(r.dir, outward_normal) < 0.;
         if self.front_face {
             self.normal = outward_normal;
@@ -22,6 +23,7 @@ pub trait Hittable {
     //特性，用于实现继承
     //代替c++中包裹record的类
     fn hit(&self, r: Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
+    //判断光线在 [t_min, t_max] 内是否碰到物体
     //优化，用 Option 是否为 None 来判断碰撞与否，同时包括返回值
 }
 
@@ -29,7 +31,7 @@ pub trait Hittable {
 
 #[derive(Default)]
 pub struct HittableList {
-    pub objects: Vec<Box<dyn Hittable>>,
+    pub objects: Vec<Box<dyn Hittable>>, //智能指针 + 特性
 }
 
 impl HittableList {
@@ -50,6 +52,7 @@ impl Hittable for HittableList {
         let mut hit_rec: Option<HitRecord> = Option::None;
         let mut closest_so_far = t_max;
 
+        //找到离光线最近的图形，这样才能保证画出正确的图
         for i in &self.objects {
             if let Some(temp_rec) = i.hit(r, t_min, closest_so_far) {
                 //此处的 temp_rec 相当于 something，只是表示不为 None

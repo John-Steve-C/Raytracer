@@ -14,11 +14,13 @@ impl Hittable for Sphere {
         let discriminant = half_b * half_b - a * c;
 
         if discriminant < 0. {
+            //判别式
             Option::None
         } else {
             let sqrtd = discriminant.sqrt();
             let mut root = (-half_b - sqrtd) / a; //求出方程的根
             if root < t_min || t_max < root {
+                //不在范围内，无颜色
                 root = (-half_b + sqrtd) / a;
                 if root < t_min || t_max < root {
                     return Option::None;
@@ -31,7 +33,7 @@ impl Hittable for Sphere {
                 normal: Vec3::new(0., 0., 0.),
                 front_face: true,
             };
-            let outward_normal = (rec.p - self.center) / self.radius;
+            let outward_normal = (rec.p - self.center) / self.radius; //向外的法向量
             rec.set_face_normal(r, outward_normal);
 
             Option::Some(rec)

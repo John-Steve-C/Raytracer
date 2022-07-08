@@ -5,7 +5,13 @@ use image::{ImageBuffer, RgbImage};
 use console::style;
 use indicatif::{ProgressBar, ProgressStyle};
 
-use crate::{camera::Camera, hittable::HittableList, ray::Ray, vec3::Vec3};
+use crate::{
+    camera::Camera,
+    hittable::HittableList,
+    ray::Ray,
+    utility::{get_pixel_color, random_double},
+    vec3::Vec3,
+};
 pub mod camera;
 pub mod hittable;
 pub mod ray;
@@ -22,6 +28,7 @@ fn main() {
     let quality = 100; // From 0 to 100
     let path = "output/output.jpg";
 
+    let samples_per_pixel = 100;
     let cam: Camera = Camera::new();
 
     let mut world: HittableList = Default::default();
@@ -56,17 +63,18 @@ fn main() {
     // Generate image
     for y in (0..height).rev() {
         for x in 0..width {
-            let u = x as f64 / (width - 1) as f64;
-            let v = y as f64 / (height - 1) as f64;
+            let mut color = Vec3::new(0., 0., 0.);
+            for s in 0..samples_per_pixel {
+                // 抗锯齿
+                let u = (x as f64 + random_double(0., 1.)) / (width - 1) as f64;
+                let v = (y as f64 + random_double(0., 1.)) / (height - 1) as f64;
 
-            let r = cam.get_ray(u, v);
-            let color = Ray::ray_color(r, &world);
+                let r = cam.get_ray(u, v);
+                color += Ray::ray_color(r, &world);
+            }
 
-            let pixel_color = [
-                (color.x * 255.).floor() as u8,
-                (color.y * 255.).floor() as u8,
-                (color.z * 255.).floor() as u8,
-            ];
+            //上色
+            let pixel_color = get_pixel_color(color, samples_per_pixel);
             let pixel = img.get_pixel_mut(x, height - y - 1);
             *pixel = image::Rgb(pixel_color);
             progress.inc(1);

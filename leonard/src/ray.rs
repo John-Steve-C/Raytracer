@@ -21,7 +21,8 @@ impl Ray {
     {
         if let Some(temp_rec) = world.hit(r, 0., INFINITY) {
             (temp_rec.normal + Vec3::new(1., 1., 1.)) * 0.5
-        } else { //背景的颜色
+        } else {
+            //背景的颜色
             let unit_dir = Vec3::unit_vector(r.dir);
             let t = 0.5 * (unit_dir.y + 1.);
             Vec3::new(1., 1., 1.) * (1. - t) + Vec3::new(0.5, 0.7, 1.) * t
