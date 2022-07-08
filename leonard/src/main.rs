@@ -5,7 +5,8 @@ use image::{ImageBuffer, RgbImage};
 use console::style;
 use indicatif::{ProgressBar, ProgressStyle};
 
-use crate::{hittable::HittableList, ray::Ray, vec3::Vec3};
+use crate::{camera::Camera, hittable::HittableList, ray::Ray, vec3::Vec3};
+pub mod camera;
 pub mod hittable;
 pub mod ray;
 pub mod sphere;
@@ -17,17 +18,10 @@ fn main() {
 
     let height = 225;
     let width = 400;
-    let quality = 60; // From 0 to 100
+    let quality = 100; // From 0 to 100
     let path = "output/output.jpg";
 
-    let view_height = 2.;
-    let view_width = 32. / 9.;
-    let focal_length = 1.;
-    let origin = Vec3::new(0., 0., 0.);
-    let horizontal = Vec3::new(view_width, 0., 0.);
-    let vertical = Vec3::new(0., view_height, 0.);
-    let lower_left_corner =
-        origin - horizontal / 2. - vertical / 2. - Vec3::new(0., 0., focal_length);
+    let cam: Camera = Camera::new();
 
     let mut world: HittableList = Default::default();
     world.add(sphere::Sphere {
@@ -64,10 +58,7 @@ fn main() {
             let u = x as f64 / (width - 1) as f64;
             let v = y as f64 / (height - 1) as f64;
 
-            let r = Ray {
-                orig: origin,
-                dir: lower_left_corner + horizontal * u + vertical * v,
-            };
+            let r = cam.get_ray(u, v);
             let color = Ray::ray_color(r, &world);
 
             let pixel_color = [
