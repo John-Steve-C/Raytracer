@@ -9,6 +9,8 @@ use crate::ray::Ray;
 use crate::vec3::Vec3;
 pub mod ray;
 pub mod vec3; //调用模块
+pub mod sphere;
+pub mod hittable;
 
 fn main() {
     print!("{}[2J", 27 as char); // Clear screen
@@ -27,6 +29,11 @@ fn main() {
     let vertical = Vec3::new(0., view_height, 0.);
     let lower_left_corner =
         origin - horizontal / 2. - vertical / 2. - Vec3::new(0., 0., focal_length);
+        
+    let mut world : hittable::HittableList = Default::default();
+    world.add(sphere::Sphere{center : Vec3::new(0., 0., -1.), radius : 0.5});
+    world.add(sphere::Sphere{center : Vec3::new(0., -100.5, -1.), radius : 100.});
+
 
     println!(
         "Image size: {}\nJPEG quality: {}",
@@ -57,7 +64,7 @@ fn main() {
                 orig: origin,
                 dir: lower_left_corner + horizontal * u + vertical * v - origin,
             };
-            let color = Ray::ray_color(r);
+            let color = Ray::ray_color(r, &world);
 
             let pixel_color = [
                 (color.x * 255.).floor() as u8,

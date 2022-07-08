@@ -10,7 +10,8 @@ use std::ops::{
     SubAssign,
 };
 
-#[derive(Copy, Clone)] // 告诉编译器，这个类型要实现 copy/clone 的 traits
+#[derive(Copy, Clone, Default)] // 告诉编译器，这个类型要实现 copy/clone 的 traits
+// Default 表示有默认构造
 pub struct Vec3 {
     //三维向量
     pub x: f64, //坐标
