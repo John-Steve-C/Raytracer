@@ -85,6 +85,7 @@ impl Vec3 {
     }
 
     pub fn random_in_hemisphere(normal: Vec3) -> Vec3 {
+        //半球中的随机向量
         let in_unit_sphere = Vec3::random_vec_in_unit_sphere();
         if Vec3::dot(in_unit_sphere, normal) > 0. {
             //和法线在同一个半球
