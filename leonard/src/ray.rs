@@ -26,17 +26,13 @@ impl Ray {
         }
 
         if let Some(temp_rec) = world.hit(r, 0.001, INFINITY) {
-            //考虑反射，沿球内部随机的 target 点和 p点 的连线发生反射
+            //考虑金属的反射
             // t_min 修正为 0.01，因为光线并不是在 t=0 处才会击中物体
-            let target = temp_rec.p + Vec3::random_in_hemisphere(temp_rec.normal);
-            Ray::ray_color(
-                Ray {
-                    dir: (target - temp_rec.p),
-                    orig: (temp_rec.p),
-                },
-                world,
-                depth - 1,
-            ) * 0.5
+            if let Some(temp_scatter) = temp_rec.mat.scatter(r, temp_rec) {
+                Ray::ray_color(temp_scatter.scattered, world, depth - 1) * temp_scatter.attenuation
+            } else {
+                Vec3::new(0., 0., 0.)
+            }
         } else {
             //背景的颜色
             let unit_dir = Vec3::unit_vector(r.dir);

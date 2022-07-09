@@ -29,6 +29,12 @@ impl Vec3 {
     pub fn length(&self) -> f64 {
         self.length_squared().sqrt()
     }
+
+    pub fn near_zero(&self) -> bool {
+        //判断向量的三维是否接近0
+        let s = 1e-8;
+        (self.x).abs() < s && (self.y).abs() < s && (self.z).abs() < s
+    }
 }
 
 impl Vec3 {
@@ -94,6 +100,11 @@ impl Vec3 {
             Vec3::new(0., 0., 0.) - in_unit_sphere
         }
     }
+
+    pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {
+        //判断反射
+        v - n * Vec3::dot(v, n) * 2.
+    }
 }
 
 // 利用 traits 重载运算符
@@ -130,6 +141,19 @@ impl Mul<f64> for Vec3 {
             x: self.x * t,
             y: self.y * t,
             z: self.z * t,
+        }
+    }
+}
+
+impl Mul<Vec3> for Vec3 {
+    //实际上只是简写，并没有任何物理意义
+    type Output = Vec3;
+
+    fn mul(self, rhs: Vec3) -> Vec3 {
+        Vec3 {
+            x: self.x * rhs.x,
+            y: self.y * rhs.y,
+            z: self.z * rhs.z,
         }
     }
 }

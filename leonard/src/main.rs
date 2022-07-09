@@ -8,12 +8,14 @@ use indicatif::{ProgressBar, ProgressStyle};
 use crate::{
     camera::Camera,
     hittable::HittableList,
+    material::{Lambertian, Metal},
     ray::Ray,
     utility::{get_pixel_color, random_double},
     vec3::Vec3,
 };
 pub mod camera;
 pub mod hittable;
+pub mod material;
 pub mod ray;
 pub mod sphere;
 pub mod utility;
@@ -33,13 +35,38 @@ fn main() {
     let cam: Camera = Camera::new();
 
     let mut world: HittableList = Default::default();
-    world.add(sphere::Sphere {
-        center: Vec3::new(0., 0., -1.),
-        radius: 0.5,
-    });
+    let material_ground = Lambertian {
+        albedo: Vec3::new(0.8, 0.8, 0.),
+    };
+    let material_center = Lambertian {
+        albedo: Vec3::new(0.7, 0.3, 0.3),
+    };
+    let material_left = Metal {
+        albedo: Vec3::new(0.8, 0.8, 0.8),
+    };
+    let material_right = Metal {
+        albedo: Vec3::new(0.8, 0.6, 0.2),
+    };
+
     world.add(sphere::Sphere {
         center: Vec3::new(0., -100.5, -1.),
         radius: 100.,
+        mat: material_ground,
+    });
+    world.add(sphere::Sphere {
+        center: Vec3::new(0., 0., -1.),
+        radius: 0.5,
+        mat: material_center,
+    });
+    world.add(sphere::Sphere {
+        center: Vec3::new(-1., 0., -1.),
+        radius: 0.5,
+        mat: material_left,
+    });
+    world.add(sphere::Sphere {
+        center: Vec3::new(1., 0., -1.),
+        radius: 0.5,
+        mat: material_right,
     });
 
     println!(

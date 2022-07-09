@@ -1,11 +1,16 @@
-use crate::{hittable::HitRecord, hittable::Hittable, ray::Ray, vec3::Vec3};
+use crate::{hittable::HitRecord, hittable::Hittable, material::Material, ray::Ray, vec3::Vec3};
 
-pub struct Sphere {
+#[derive(Clone)]
+pub struct Sphere<T>
+where
+    T: Material,
+{
     pub center: Vec3,
     pub radius: f64,
+    pub mat: T, //不保存指针，直接保存结构体
 }
 
-impl Hittable for Sphere {
+impl<T: Material> Hittable for Sphere<T> {
     fn hit(&self, r: Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let oc = r.orig - self.center;
         let a = r.dir.length_squared();
@@ -32,6 +37,7 @@ impl Hittable for Sphere {
                 p: r.at(root),
                 normal: Vec3::new(0., 0., 0.),
                 front_face: true,
+                mat: &self.mat,
             };
             let outward_normal = (rec.p - self.center) / self.radius; //向外的法向量
             rec.set_face_normal(r, outward_normal);

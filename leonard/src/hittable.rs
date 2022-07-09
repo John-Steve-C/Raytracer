@@ -1,14 +1,15 @@
-use crate::{ray::Ray, vec3::Vec3};
+use crate::{material::Material, ray::Ray, vec3::Vec3};
 
-#[derive(Copy, Clone, Default)]
-pub struct HitRecord {
-    pub p: Vec3,          //碰撞点
-    pub normal: Vec3,     //法向量
-    pub t: f64,           //对应光线的 at(t)
-    pub front_face: bool, //方向是否为外侧
+#[derive(Clone)]
+pub struct HitRecord<'a> {
+    pub p: Vec3,               //碰撞点
+    pub normal: Vec3,          //法向量
+    pub t: f64,                //对应光线的 at(t)
+    pub front_face: bool,      //方向是否为外侧
+    pub mat: &'a dyn Material, //材料，变量类型是对包含 Material 结构体的引用
 }
 
-impl HitRecord {
+impl<'a> HitRecord<'a> {
     pub fn set_face_normal(&mut self, r: Ray, outward_normal: Vec3) {
         //求出normal和front_face
         self.front_face = Vec3::dot(r.dir, outward_normal) < 0.;
