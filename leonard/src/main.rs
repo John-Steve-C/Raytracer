@@ -29,6 +29,7 @@ fn main() {
     let path = "output/output.jpg";
 
     let samples_per_pixel = 100;
+    let max_depth = 50;
     let cam: Camera = Camera::new();
 
     let mut world: HittableList = Default::default();
@@ -64,13 +65,13 @@ fn main() {
     for y in (0..height).rev() {
         for x in 0..width {
             let mut color = Vec3::new(0., 0., 0.);
-            for s in 0..samples_per_pixel {
+            for _s in 0..samples_per_pixel {
                 // 抗锯齿
                 let u = (x as f64 + random_double(0., 1.)) / (width - 1) as f64;
                 let v = (y as f64 + random_double(0., 1.)) / (height - 1) as f64;
 
-                let r = cam.get_ray(u, v);
-                color += Ray::ray_color(r, &world);
+                let r = cam.get_ray(u, v); //多次求通过该像素的光线
+                color += Ray::ray_color(r, &world, max_depth);
             }
 
             //上色

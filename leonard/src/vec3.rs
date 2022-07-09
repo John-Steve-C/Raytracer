@@ -1,3 +1,4 @@
+use crate::utility::random_double;
 use std::ops::{
     //重载运算符
     Add,
@@ -47,6 +48,7 @@ impl Vec3 {
     }
 
     pub fn unit_vector(u: Vec3) -> Vec3 {
+        //向量单位化
         u / u.length()
     }
 
@@ -55,6 +57,40 @@ impl Vec3 {
             x: _x,
             y: _y,
             z: _z,
+        }
+    }
+
+    pub fn random(min: f64, max: f64) -> Vec3 {
+        //随机生成向量
+        Vec3 {
+            x: random_double(min, max),
+            y: random_double(min, max),
+            z: random_double(min, max),
+        }
+    }
+
+    pub fn random_vec_in_unit_sphere() -> Vec3 {
+        //在单位球体内生成一个向量
+        loop {
+            let p = Vec3::random(-1., 1.);
+            if p.length_squared() < 1. {
+                return p;
+            }
+        }
+    }
+
+    pub fn random_unit_vector() -> Vec3 {
+        //随机单位向量
+        Vec3::unit_vector(Vec3::random_vec_in_unit_sphere())
+    }
+
+    pub fn random_in_hemisphere(normal: Vec3) -> Vec3 {
+        let in_unit_sphere = Vec3::random_vec_in_unit_sphere();
+        if Vec3::dot(in_unit_sphere, normal) > 0. {
+            //和法线在同一个半球
+            in_unit_sphere
+        } else {
+            Vec3::new(0., 0., 0.) - in_unit_sphere
         }
     }
 }

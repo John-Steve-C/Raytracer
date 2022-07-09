@@ -15,12 +15,28 @@ impl Ray {
 }
 
 impl Ray {
-    pub fn ray_color<T>(r: Ray, world: &T) -> Vec3
+    pub fn ray_color<T>(r: Ray, world: &T, depth: i32) -> Vec3
     where
         T: Hittable + 'static,
     {
-        if let Some(temp_rec) = world.hit(r, 0., INFINITY) {
-            (temp_rec.normal + Vec3::new(1., 1., 1.)) * 0.5
+        // 递归终止条件
+        // 超出限制，光无法反射，变成黑色
+        if depth <= 0 {
+            return Vec3::new(0., 0., 0.);
+        }
+
+        if let Some(temp_rec) = world.hit(r, 0.001, INFINITY) {
+            //考虑反射，沿球内部随机的 target 点和 p点 的连线发生反射
+            // t_min 修正为 0.01，因为光线并不是在 t=0 处才会击中物体
+            let target = temp_rec.p + temp_rec.normal + Vec3::random_unit_vector();
+            Ray::ray_color(
+                Ray {
+                    dir: (target - temp_rec.p),
+                    orig: (temp_rec.p),
+                },
+                world,
+                depth - 1,
+            ) * 0.5
         } else {
             //背景的颜色
             let unit_dir = Vec3::unit_vector(r.dir);

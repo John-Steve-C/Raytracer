@@ -29,13 +29,14 @@ pub fn get_pixel_color(color: Vec3, sample_per_pixel: i32) -> [u8; 3] {
     let scale = 1. / sample_per_pixel as f64;
 
     //每个像素格子，都求 sample 次颜色，然后求平均，得到RGB三元组
-    r *= scale;
-    g *= scale;
-    b *= scale;
+    // 进行 gamma 修正
+    r = (scale * r).sqrt();
+    g = (scale * g).sqrt();
+    b = (scale * b).sqrt();
 
     [
-        (clamp(r, 0., 0.999) * 255.).floor() as u8,
-        (clamp(g, 0., 0.999) * 255.).floor() as u8,
-        (clamp(b, 0., 0.999) * 255.).floor() as u8,
+        (clamp(r, 0., 0.999) * 256.).floor() as u8,
+        (clamp(g, 0., 0.999) * 256.).floor() as u8,
+        (clamp(b, 0., 0.999) * 256.).floor() as u8,
     ]
 }
