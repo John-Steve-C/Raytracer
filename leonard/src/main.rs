@@ -8,7 +8,7 @@ use indicatif::{ProgressBar, ProgressStyle};
 use crate::{
     camera::Camera,
     hittable::HittableList,
-    material::{Lambertian, Metal},
+    material::{Lambertian, Metal, Dielectric},
     ray::Ray,
     utility::{get_pixel_color, random_double},
     vec3::Vec3,
@@ -39,13 +39,14 @@ fn main() {
         albedo: Vec3::new(0.8, 0.8, 0.),
     };
     let material_center = Lambertian {
-        albedo: Vec3::new(0.7, 0.3, 0.3),
+        albedo: Vec3::new(0.1, 0.2, 0.5)
     };
-    let material_left = Metal {
-        albedo: Vec3::new(0.8, 0.8, 0.8),
+    let material_left =  Dielectric{
+        ir: 1.5
     };
     let material_right = Metal {
         albedo: Vec3::new(0.8, 0.6, 0.2),
+        fuzz: 0.
     };
 
     world.add(sphere::Sphere {
