@@ -4,9 +4,9 @@
 
 ## 当前进度
 
-book1，Image10
+book1，Image21
 
-![](https://s3.bmp.ovh/imgs/2022/07/09/997acd24db074257.jpg)
+![](https://s3.bmp.ovh/imgs/2022/07/10/462f85955635e531.jpg)
 
 ## 项目内容
 
@@ -27,7 +27,7 @@ book1，Image10
 
 ---
 
-- [ ] 学习并实现 book_1
+- [x] 学习并实现 book_1
 - [ ] ... book_2
 - [ ] ... book_3
 
