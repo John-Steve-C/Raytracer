@@ -3,10 +3,7 @@ pub mod lambertian;
 pub mod metal;
 
 use crate::{
-    basic_component::{
-        ray::Ray,
-        vec3::Vec3,
-    },
+    basic_component::{ray::Ray, vec3::Vec3},
     hittable::HitRecord,
 };
 

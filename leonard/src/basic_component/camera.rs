@@ -1,10 +1,7 @@
-use crate:: {
-    utility, 
-    basic_component::{
-        ray::Ray,
-        vec3::Vec3,
-    }
- };
+use crate::{
+    basic_component::{ray::Ray, vec3::Vec3},
+    utility,
+};
 
 #[derive(Copy, Clone)]
 pub struct Camera {

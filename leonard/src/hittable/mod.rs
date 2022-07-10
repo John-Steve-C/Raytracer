@@ -1,10 +1,7 @@
 pub mod sphere;
 
 use crate::{
-    basic_component::{ 
-        ray::Ray, 
-        vec3::Vec3
-    },
+    basic_component::{ray::Ray, vec3::Vec3},
     material::Material,
 };
 

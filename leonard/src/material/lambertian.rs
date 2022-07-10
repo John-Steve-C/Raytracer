@@ -1,10 +1,7 @@
 use crate::{
-    basic_component::{
-        ray::Ray,
-        vec3::Vec3,
-    },
+    basic_component::{ray::Ray, vec3::Vec3},
     hittable::HitRecord,
-    material::{Material, ScatterRecord}
+    material::{Material, ScatterRecord},
 };
 
 #[derive(Clone, Copy)]

@@ -1,11 +1,8 @@
 use crate::{
-    basic_component::{
-        ray::Ray,
-        vec3::Vec3,
-    },
-    utility::random_double,
+    basic_component::{ray::Ray, vec3::Vec3},
     hittable::HitRecord,
-    material::{Material, ScatterRecord}
+    material::{Material, ScatterRecord},
+    utility::random_double,
 };
 
 #[derive(Clone, Copy)]
