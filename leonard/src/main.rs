@@ -33,19 +33,19 @@ fn random_scene() -> HittableList {
     for a in -11..11 {
         for b in -11..11 {
             let choose_mat = random_double(0., 1.);
-            let center = Vec3::new(
+            let _center = Vec3::new(
                 a as f64 + random_double(0., 1.),
                 0.2,
                 b as f64 + random_double(0., 1.),
             );
 
-            if (center - Vec3::new(4., 0.2, 0.)).length() > 0.9 {
+            if (_center - Vec3::new(4., 0.2, 0.)).length() > 0.9 {
                 if choose_mat < 0.8 {
                     //diffuse
                     let _albedo = Vec3::random(0., 1.) * Vec3::random(0., 1.);
                     let sphere_material = Lambertian { albedo: _albedo };
                     world.add(sphere::Sphere {
-                        center: center,
+                        center: _center,
                         radius: 0.2,
                         mat: sphere_material,
                     });
@@ -58,7 +58,7 @@ fn random_scene() -> HittableList {
                         fuzz: _fuzz,
                     };
                     world.add(sphere::Sphere {
-                        center: center,
+                        center: _center,
                         radius: 0.2,
                         mat: sphere_material,
                     });
@@ -66,7 +66,7 @@ fn random_scene() -> HittableList {
                     //glass
                     let sphere_material = Dielectric { ir: 1.5 };
                     world.add(sphere::Sphere {
-                        center: center,
+                        center: _center,
                         radius: 0.2,
                         mat: sphere_material,
                     });

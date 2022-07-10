@@ -36,18 +36,18 @@ impl Material for Dielectric {
         let sin_theta = (1. - cos_theta * cos_theta).sqrt();
 
         let cannot_refract = refraction_ratio * sin_theta > 1.;
-        let dir: Vec3;
+        let _dir: Vec3;
         if cannot_refract
             || Dielectric::reflectance(cos_theta, refraction_ratio) > random_double(0., 1.)
         {
-            dir = Vec3::reflect(unit_dir, rec.normal);
+            _dir = Vec3::reflect(unit_dir, rec.normal);
         } else {
-            dir = Vec3::refract(unit_dir, rec.normal, refraction_ratio)
+            _dir = Vec3::refract(unit_dir, rec.normal, refraction_ratio)
         }
 
         Some(ScatterRecord {
             scattered: Ray {
-                dir: dir,
+                dir: _dir,
                 orig: rec.p,
             },
             attenuation: Vec3::new(1., 1., 1.),
