@@ -8,7 +8,7 @@ use indicatif::{ProgressBar, ProgressStyle};
 use crate::{
     camera::Camera,
     hittable::HittableList,
-    material::{Lambertian, Metal, Dielectric},
+    material::{Dielectric, Lambertian, Metal},
     ray::Ray,
     utility::{get_pixel_color, random_double},
     vec3::Vec3,
@@ -21,54 +21,163 @@ pub mod sphere;
 pub mod utility;
 pub mod vec3; //调用模块
 
+fn random_scene() -> HittableList {
+    let mut world: HittableList = Default::default();
+
+    let ground_material = Lambertian {
+        albedo: Vec3::new(0.5, 0.5, 0.5),
+    };
+
+    world.add(sphere::Sphere {
+        center: Vec3::new(0., -1000., 0.),
+        radius: 1000.,
+        mat: ground_material,
+    });
+
+    for a in -11..11 {
+        for b in -11..11 {
+            let choose_mat = random_double(0., 1.);
+            let center = Vec3::new(
+                a as f64 + random_double(0., 1.),
+                0.2,
+                b as f64 + random_double(0., 1.),
+            );
+
+            if (center - Vec3::new(4., 0.2, 0.)).length() > 0.9 {
+                if choose_mat < 0.8 {
+                    //diffuse
+                    let _albedo = Vec3::random(0., 1.) * Vec3::random(0., 1.);
+                    let sphere_material = Lambertian { albedo: _albedo };
+                    world.add(sphere::Sphere {
+                        center: center,
+                        radius: 0.2,
+                        mat: sphere_material,
+                    });
+                } else if choose_mat < 0.95 {
+                    //metal
+                    let _albedo = Vec3::random(0.5, 1.);
+                    let _fuzz = random_double(0., 0.5);
+                    let sphere_material = Metal {
+                        albedo: _albedo,
+                        fuzz: _fuzz,
+                    };
+                    world.add(sphere::Sphere {
+                        center: center,
+                        radius: 0.2,
+                        mat: sphere_material,
+                    });
+                } else {
+                    //glass
+                    let sphere_material = Dielectric { ir: 1.5 };
+                    world.add(sphere::Sphere {
+                        center: center,
+                        radius: 0.2,
+                        mat: sphere_material,
+                    });
+                }
+            }
+        }
+    }
+
+    let mat_1 = Dielectric { ir: 1.5 };
+    world.add(sphere::Sphere {
+        center: Vec3::new(0., 1., 0.),
+        radius: 1.,
+        mat: mat_1,
+    });
+
+    let mat_2 = Lambertian {
+        albedo: Vec3::new(0.4, 0.2, 0.1),
+    };
+    world.add(sphere::Sphere {
+        center: Vec3::new(-4., 1., 0.),
+        radius: 1.,
+        mat: mat_2,
+    });
+
+    let mat_3 = Metal {
+        albedo: Vec3::new(0.7, 0.6, 0.5),
+        fuzz: 0.,
+    };
+    world.add(sphere::Sphere {
+        center: Vec3::new(4., 1., 0.),
+        radius: 1.,
+        mat: mat_3,
+    });
+
+    world
+}
+
 fn main() {
     print!("{}[2J", 27 as char); // Clear screen
     print!("{esc}[2J{esc}[1;1H", esc = 27 as char); // Set cursor position as 1,1
 
-    let height = 225;
-    let width = 400;
+    let aspect_ratio = 3. / 2.;
+    let width = 1200;
+    let height = (width as f64 / aspect_ratio) as u32;
     let quality = 100; // From 0 to 100
     let path = "output/output.jpg";
 
-    let samples_per_pixel = 100;
+    let samples_per_pixel = 500;
     let max_depth = 50;
-    let cam: Camera = Camera::new();
 
-    let mut world: HittableList = Default::default();
-    let material_ground = Lambertian {
-        albedo: Vec3::new(0.8, 0.8, 0.),
-    };
-    let material_center = Lambertian {
-        albedo: Vec3::new(0.1, 0.2, 0.5)
-    };
-    let material_left =  Dielectric{
-        ir: 1.5
-    };
-    let material_right = Metal {
-        albedo: Vec3::new(0.8, 0.6, 0.2),
-        fuzz: 0.
-    };
+    let lookfrom = Vec3::new(13., 2., 3.);
+    let lookat = Vec3::new(0., 0., 0.);
+    let vup = Vec3::new(0., 1., 0.);
+    let aperture = 0.1;
+    let dist_to_focus = 10.;
 
-    world.add(sphere::Sphere {
-        center: Vec3::new(0., -100.5, -1.),
-        radius: 100.,
-        mat: material_ground,
-    });
-    world.add(sphere::Sphere {
-        center: Vec3::new(0., 0., -1.),
-        radius: 0.5,
-        mat: material_center,
-    });
-    world.add(sphere::Sphere {
-        center: Vec3::new(-1., 0., -1.),
-        radius: 0.5,
-        mat: material_left,
-    });
-    world.add(sphere::Sphere {
-        center: Vec3::new(1., 0., -1.),
-        radius: 0.5,
-        mat: material_right,
-    });
+    let cam: Camera = Camera::new(
+        lookfrom,
+        lookat,
+        vup,
+        20.,
+        aspect_ratio,
+        aperture,
+        dist_to_focus,
+    );
+
+    let world: HittableList = random_scene();
+
+    // let material_ground = Lambertian {
+    //     albedo: Vec3::new(0.8, 0.8, 0.),
+    // };
+    // let material_center = Lambertian {
+    //     albedo: Vec3::new(0.1, 0.2, 0.5)
+    // };
+    // let material_left = Dielectric {
+    //     ir: 1.5,
+    // };
+    // let material_right = Metal {
+    //     albedo: Vec3::new(0.8, 0.6, 0.2),
+    //     fuzz: 0.
+    // };
+
+    // world.add(sphere::Sphere {
+    //     center: Vec3::new(0., -100.5, -1.),
+    //     radius: 100.,
+    //     mat: material_ground,
+    // });
+    // world.add(sphere::Sphere {
+    //     center: Vec3::new(0., 0., -1.),
+    //     radius: 0.5,
+    //     mat: material_center,
+    // });
+    // world.add(sphere::Sphere {
+    //     center: Vec3::new(-1., 0., -1.),
+    //     radius: 0.5,
+    //     mat: material_left,
+    // });
+    // world.add(sphere::Sphere {
+    //     center: Vec3::new(-1., 0., -1.),
+    //     radius: -0.45,
+    //     mat: material_left,
+    // });
+    // world.add(sphere::Sphere {
+    //     center: Vec3::new(1., 0., -1.),
+    //     radius: 0.5,
+    //     mat: material_right,
+    // });
 
     println!(
         "Image size: {}\nJPEG quality: {}",

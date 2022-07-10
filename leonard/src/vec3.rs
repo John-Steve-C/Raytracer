@@ -106,14 +106,25 @@ impl Vec3 {
         v - n * Vec3::dot(v, n) * 2.
     }
 
-    pub fn refract(uv : Vec3, n : Vec3, etai_over_etat : f64) -> Vec3 {
+    pub fn refract(uv: Vec3, n: Vec3, etai_over_etat: f64) -> Vec3 {
         //判断折射
         let t = Vec3::dot(Vec3::new(0., 0., 0.) - uv, n);
         let mut cos_theta = t;
-        if 1. < t { cos_theta = 1.; }
+        if 1. < t {
+            cos_theta = 1.;
+        }
         let r_out_perp = (uv + n * cos_theta) * etai_over_etat;
-        let r_out_parallel = n * ( -((1. - r_out_perp.length_squared()).abs()).sqrt());
+        let r_out_parallel = n * (-((1. - r_out_perp.length_squared()).abs()).sqrt());
         r_out_perp + r_out_parallel
+    }
+
+    pub fn random_in_unit_disk() -> Vec3 {
+        loop {
+            let p = Vec3::new(random_double(-1., 1.), random_double(-1., 1.), 0.);
+            if p.length_squared() < 1. {
+                return p;
+            }
+        }
     }
 }
 
