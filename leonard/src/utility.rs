@@ -1,4 +1,6 @@
-use crate::vec3::Vec3;
+use crate::{
+    basic_component::vec3::Vec3
+};
 use rand::Rng;
 use std::f64::consts::PI;
 

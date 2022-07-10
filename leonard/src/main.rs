@@ -5,21 +5,28 @@ use image::{ImageBuffer, RgbImage};
 use console::style;
 use indicatif::{ProgressBar, ProgressStyle};
 
-use crate::{
-    camera::Camera,
-    hittable::HittableList,
-    material::{Dielectric, Lambertian, Metal},
-    ray::Ray,
-    utility::{get_pixel_color, random_double},
-    vec3::Vec3,
-};
-pub mod camera;
 pub mod hittable;
 pub mod material;
-pub mod ray;
-pub mod sphere;
-pub mod utility;
-pub mod vec3; //调用模块
+pub mod basic_component;
+pub mod utility; //调用模块
+
+use crate::{
+    basic_component::{
+        camera::Camera,
+        vec3::Vec3,
+        ray::Ray,
+    },
+    hittable::{
+        HittableList,sphere
+    },
+    material::{
+        dielectric::Dielectric, 
+        lambertian::Lambertian, 
+        metal::Metal,
+    },
+    utility::{get_pixel_color, random_double},
+};
+
 
 fn random_scene() -> HittableList {
     let mut world: HittableList = Default::default();

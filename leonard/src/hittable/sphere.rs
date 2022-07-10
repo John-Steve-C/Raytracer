@@ -1,4 +1,11 @@
-use crate::{hittable::HitRecord, hittable::Hittable, material::Material, ray::Ray, vec3::Vec3};
+use crate::{
+    basic_component::{ 
+        ray::Ray, 
+        vec3::Vec3
+    },
+    hittable::{HitRecord, Hittable},
+    material::Material,
+};
 
 #[derive(Clone)]
 pub struct Sphere<T>

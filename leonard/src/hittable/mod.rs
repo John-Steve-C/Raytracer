@@ -1,4 +1,12 @@
-use crate::{material::Material, ray::Ray, vec3::Vec3};
+pub mod sphere;
+
+use crate::{
+    basic_component::{ 
+        ray::Ray, 
+        vec3::Vec3
+    },
+    material::Material,
+};
 
 #[derive(Clone)]
 pub struct HitRecord<'a> {

@@ -1,6 +1,11 @@
 use std::f64::INFINITY;
 
-use crate::{hittable::Hittable, vec3::Vec3};
+use crate::{
+    basic_component::{
+        vec3::Vec3
+    },
+    hittable::Hittable,
+};
 
 #[derive(Copy, Clone, Default)]
 pub struct Ray {
