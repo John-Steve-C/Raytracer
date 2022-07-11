@@ -36,6 +36,7 @@ impl Material for Dielectric {
         let sin_theta = (1. - cos_theta * cos_theta).sqrt();
 
         let cannot_refract = refraction_ratio * sin_theta > 1.;
+        //计算出的正弦值大于1，说明该光线不能折射
         let _dir: Vec3;
         if cannot_refract
             || Dielectric::reflectance(cos_theta, refraction_ratio) > random_double(0., 1.)

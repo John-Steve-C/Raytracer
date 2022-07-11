@@ -102,7 +102,7 @@ impl Vec3 {
     }
 
     pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {
-        //判断反射
+        //判断反射，v为入射光，n为单位法向量
         v - n * Vec3::dot(v, n) * 2.
     }
 

@@ -9,25 +9,24 @@ pub struct Camera {
     pub lower_left_corner: Vec3, //左下角
     pub horizontal: Vec3,        //水平向量
     pub vertical: Vec3,          //竖直
-    pub u: Vec3,
+    pub u: Vec3,                 //用来描述相机方向的正交基
     pub v: Vec3,
-    pub w: Vec3,
+    pub w: Vec3,          //也是相机的朝向
     pub lens_radius: f64, //镜头半径
 }
 
 impl Camera {
     pub fn new(
-        lookfrom: Vec3,
-        lookat: Vec3,
-        vup: Vec3,
-        vfov: f64,
+        lookfrom: Vec3, //相机放置的位置
+        lookat: Vec3,   //相机朝向的点
+        vup: Vec3,      //与光线正交的“向上”向量，用来计算镜头的旋转角度
+        vfov: f64,      //vertical field of view in degrees 观察的广角（越小，看到的东西越少、大）
         aspect_ratio: f64,
-        aperture: f64,
+        aperture: f64, //光圈
         focus_dist: f64,
     ) -> Camera {
         //充当默认构造函数
         // aspect_ratio 长宽比
-        // vfov : vertical field of view in degrees 竖直观测角
         let theta = utility::degree_to_radian(vfov);
         let h = (theta / 2.).tan();
         let view_height = 2. * h;
