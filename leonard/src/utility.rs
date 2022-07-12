@@ -2,6 +2,22 @@ use crate::basic_component::vec3::Vec3;
 use rand::Rng;
 use std::f64::consts::PI;
 
+pub fn max_f64(a: f64, b: f64) -> f64 {
+    if a > b {
+        a
+    } else {
+        b
+    }
+}
+
+pub fn min_f64(a: f64, b: f64) -> f64 {
+    if a < b {
+        a
+    } else {
+        b
+    }
+}
+
 pub fn degree_to_radian(deg: f64) -> f64 {
     deg * PI / 180.
 }
@@ -9,6 +25,12 @@ pub fn degree_to_radian(deg: f64) -> f64 {
 pub fn random_double(min: f64, max: f64) -> f64 {
     let mut rng = rand::thread_rng();
     min + rng.gen::<f64>() * (max - min)
+}
+
+pub fn random_int(min: i32, max: i32) -> i32 {
+    let mut rng = rand::thread_rng();
+    rng.gen_range(min..max + 1)
+    // 左闭右开，即 [min, max + 1)
 }
 
 pub fn clamp(x: f64, min: f64, max: f64) -> f64 {

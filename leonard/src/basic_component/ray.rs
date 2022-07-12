@@ -6,6 +6,7 @@ use crate::{basic_component::vec3::Vec3, hittable::Hittable};
 pub struct Ray {
     pub dir: Vec3,
     pub orig: Vec3,
+    pub tm: f64, //光线的出现时间
 }
 
 impl Ray {

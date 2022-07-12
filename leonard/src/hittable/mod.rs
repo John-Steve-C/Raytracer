@@ -3,6 +3,7 @@ pub mod sphere;
 use crate::{
     basic_component::{ray::Ray, vec3::Vec3},
     material::Material,
+    optimization::aabb::AABB,
 };
 
 #[derive(Clone)]
@@ -31,6 +32,8 @@ pub trait Hittable {
     fn hit(&self, r: Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
     //判断光线在 [t_min, t_max] 内是否碰到物体
     //优化，用 Option 是否为 None 来判断碰撞与否，同时包括返回值
+    fn bounding_box(&self, _time0: f64, _time1: f64) -> Option<AABB>;
+    // AABB 优化，判断光线是否撞到 大的 box
 }
 
 //------------------------------------
@@ -68,5 +71,32 @@ impl Hittable for HittableList {
         }
 
         hit_rec
+    }
+
+    fn bounding_box(&self, _time0: f64, _time1: f64) -> Option<AABB> {
+        if self.objects.is_empty() {
+            return None;
+        }
+
+        let mut output_box = AABB {
+            minimum: Vec3::new(0., 0., 0.),
+            maximum: Vec3::new(0., 0., 0.),
+        };
+        let mut is_first_box = true;
+
+        for i in &self.objects {
+            if let Some(temp_box) = i.bounding_box(_time0, _time1) {
+                if is_first_box {
+                    output_box = temp_box;
+                } else {
+                    output_box = AABB::surrounding_box(output_box, temp_box);
+                }
+            } else {
+                return None;
+            }
+            is_first_box = false;
+        }
+
+        Some(output_box)
     }
 }

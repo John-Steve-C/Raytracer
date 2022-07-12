@@ -2,7 +2,7 @@ use crate::{
     basic_component::{ray::Ray, vec3::Vec3},
     hittable::HitRecord,
     material::{Material, ScatterRecord},
-    utility::random_double,
+    utility::{min_f64, random_double},
 };
 
 #[derive(Clone, Copy)]
@@ -29,10 +29,7 @@ impl Material for Dielectric {
 
         let unit_dir = Vec3::unit_vector(r_in.dir);
 
-        let mut cos_theta = Vec3::dot(Vec3::new(0., 0., 0.) - unit_dir, rec.normal);
-        if cos_theta > 1. {
-            cos_theta = 1.;
-        }
+        let cos_theta = min_f64(Vec3::dot(Vec3::new(0., 0., 0.) - unit_dir, rec.normal), 1.);
         let sin_theta = (1. - cos_theta * cos_theta).sqrt();
 
         let cannot_refract = refraction_ratio * sin_theta > 1.;
@@ -50,6 +47,7 @@ impl Material for Dielectric {
             scattered: Ray {
                 dir: _dir,
                 orig: rec.p,
+                tm: r_in.tm,
             },
             attenuation: Vec3::new(1., 1., 1.),
         })

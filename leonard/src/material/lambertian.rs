@@ -23,6 +23,7 @@ impl Material for Lambertian {
             scattered: Ray {
                 dir: scatter_dir,
                 orig: rec.p,
+                tm: _r_in.tm,
             },
             attenuation: self.albedo,
         })

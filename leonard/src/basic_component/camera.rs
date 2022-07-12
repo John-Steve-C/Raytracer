@@ -1,6 +1,6 @@
 use crate::{
     basic_component::{ray::Ray, vec3::Vec3},
-    utility,
+    utility::{self, random_double},
 };
 
 #[derive(Copy, Clone)]
@@ -13,6 +13,8 @@ pub struct Camera {
     pub v: Vec3,
     pub w: Vec3,          //也是相机的朝向
     pub lens_radius: f64, //镜头半径
+    pub time0: f64,       //拍摄的始末时间
+    pub time1: f64,
 }
 
 impl Camera {
@@ -24,6 +26,8 @@ impl Camera {
         aspect_ratio: f64,
         aperture: f64, //光圈
         focus_dist: f64,
+        _time0: f64,
+        _time1: f64,
     ) -> Camera {
         //充当默认构造函数
         // aspect_ratio 长宽比
@@ -45,14 +49,16 @@ impl Camera {
         let _lens_radius = aperture / 2.;
 
         Camera {
-            origin: (_origin),
-            lower_left_corner: (_lower_left_corner),
-            horizontal: (_horizontal),
-            vertical: (_vertical),
-            u: (_u),
-            v: (_v),
-            w: (_w),
-            lens_radius: (_lens_radius),
+            origin: _origin,
+            lower_left_corner: _lower_left_corner,
+            horizontal: _horizontal,
+            vertical: _vertical,
+            u: _u,
+            v: _v,
+            w: _w,
+            lens_radius: _lens_radius,
+            time0: _time0,
+            time1: _time1,
         }
     }
 
@@ -65,6 +71,8 @@ impl Camera {
                 - self.origin
                 - offset),
             orig: (self.origin + offset),
+            tm: random_double(self.time0, self.time1),
+            // 光线在拍摄时间内随机生成
         }
     }
 }

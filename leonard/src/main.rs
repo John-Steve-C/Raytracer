@@ -8,6 +8,7 @@ use indicatif::{ProgressBar, ProgressStyle};
 pub mod basic_component;
 pub mod hittable;
 pub mod material;
+pub mod optimization;
 pub mod utility; //调用模块
 
 use crate::{
@@ -44,8 +45,17 @@ fn random_scene() -> HittableList {
                     //diffuse
                     let _albedo = Vec3::random(0., 1.) * Vec3::random(0., 1.);
                     let sphere_material = Lambertian { albedo: _albedo };
-                    world.add(sphere::Sphere {
-                        center: _center,
+                    let _center2 = _center + Vec3::new(0., random_double(0., 0.5), 0.);
+                    // world.add(sphere::Sphere {
+                    //     center: _center,
+                    //     radius: 0.2,
+                    //     mat: sphere_material,
+                    // });
+                    world.add(sphere::MovingSphere {
+                        center0: _center,
+                        center1: _center2,
+                        time0: 0.,
+                        time1: 1.,
                         radius: 0.2,
                         mat: sphere_material,
                     });
@@ -108,13 +118,13 @@ fn main() {
     print!("{}[2J", 27 as char); // Clear screen
     print!("{esc}[2J{esc}[1;1H", esc = 27 as char); // Set cursor position as 1,1
 
-    let aspect_ratio = 3. / 2.;
-    let width = 1200;
+    let aspect_ratio = 16. / 9.;
+    let width = 400;
     let height = (width as f64 / aspect_ratio) as u32;
     let quality = 100; // From 0 to 100
     let path = "output/output.jpg";
 
-    let samples_per_pixel = 500;
+    let samples_per_pixel = 100;
     let max_depth = 50;
 
     let lookfrom = Vec3::new(13., 2., 3.);
@@ -131,6 +141,8 @@ fn main() {
         aspect_ratio,
         aperture,
         dist_to_focus,
+        0.,
+        1.,
     );
 
     let world: HittableList = random_scene();

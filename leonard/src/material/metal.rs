@@ -16,6 +16,7 @@ impl Material for Metal {
         let _scattered = Ray {
             dir: reflected + Vec3::random_vec_in_unit_sphere() * self.fuzz, //模糊化反射
             orig: rec.p,
+            tm: r_in.tm,
         };
         let _attenuation = self.albedo;
 

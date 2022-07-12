@@ -1,10 +1,12 @@
-use crate::utility::random_double;
+use crate::utility::{min_f64, random_double};
 use std::ops::{
     //重载运算符
     Add,
     AddAssign, // + 和 +=
     Div,
     DivAssign,
+    Index,    //[]
+    IndexMut, //[]的赋值
     Mul,
     MulAssign,
     Sub,
@@ -108,11 +110,7 @@ impl Vec3 {
 
     pub fn refract(uv: Vec3, n: Vec3, etai_over_etat: f64) -> Vec3 {
         //判断折射
-        let t = Vec3::dot(Vec3::new(0., 0., 0.) - uv, n);
-        let mut cos_theta = t;
-        if 1. < t {
-            cos_theta = 1.;
-        }
+        let cos_theta = min_f64(Vec3::dot(Vec3::new(0., 0., 0.) - uv, n), 1.);
         let r_out_perp = (uv + n * cos_theta) * etai_over_etat;
         let r_out_parallel = n * (-((1. - r_out_perp.length_squared()).abs()).sqrt());
         r_out_perp + r_out_parallel
@@ -133,7 +131,7 @@ impl Add<Vec3> for Vec3 {
     // +
     type Output = Vec3;
 
-    fn add(self, other: Vec3) -> Vec3 {
+    fn add(self, other: Vec3) -> Self::Output {
         Vec3 {
             x: self.x + other.x,
             y: self.y + other.y,
@@ -145,7 +143,7 @@ impl Add<Vec3> for Vec3 {
 impl Sub<Vec3> for Vec3 {
     type Output = Vec3;
 
-    fn sub(self, other: Vec3) -> Vec3 {
+    fn sub(self, other: Vec3) -> Self::Output {
         Vec3 {
             x: self.x - other.x,
             y: self.y - other.y,
@@ -157,7 +155,7 @@ impl Sub<Vec3> for Vec3 {
 impl Mul<f64> for Vec3 {
     type Output = Vec3;
 
-    fn mul(self, t: f64) -> Vec3 {
+    fn mul(self, t: f64) -> Self::Output {
         Vec3 {
             x: self.x * t,
             y: self.y * t,
@@ -170,7 +168,7 @@ impl Mul<Vec3> for Vec3 {
     //实际上只是简写，并没有任何物理意义
     type Output = Vec3;
 
-    fn mul(self, rhs: Vec3) -> Vec3 {
+    fn mul(self, rhs: Vec3) -> Self::Output {
         Vec3 {
             x: self.x * rhs.x,
             y: self.y * rhs.y,
@@ -182,7 +180,7 @@ impl Mul<Vec3> for Vec3 {
 impl Div<f64> for Vec3 {
     type Output = Vec3;
 
-    fn div(self, t: f64) -> Vec3 {
+    fn div(self, t: f64) -> Self::Output {
         Vec3 {
             x: self.x / t,
             y: self.y / t,
@@ -220,5 +218,29 @@ impl DivAssign<f64> for Vec3 {
         self.x /= rhs;
         self.y /= rhs;
         self.z /= rhs;
+    }
+}
+
+impl Index<usize> for Vec3 {
+    type Output = f64;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        match index {
+            0 => &self.x,
+            1 => &self.y,
+            2 => &self.z,
+            _ => panic!("index out of bound!"),
+        }
+    }
+}
+
+impl IndexMut<usize> for Vec3 {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        match index {
+            0 => &mut self.x,
+            1 => &mut self.y,
+            2 => &mut self.z,
+            _ => panic!("index out of bound!"),
+        }
     }
 }
