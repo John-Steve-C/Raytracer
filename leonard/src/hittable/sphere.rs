@@ -43,9 +43,12 @@ impl<T: Material> Hittable for Sphere<T> {
                 normal: Vec3::new(0., 0., 0.),
                 front_face: true,
                 mat: &self.mat,
+                u: 0.,
+                v: 0.,
             };
             let outward_normal = (rec.p - self.center) / self.radius; //向外的法向量
             rec.set_face_normal(r, outward_normal);
+            rec.get_sphere_uv(outward_normal);
 
             Option::Some(rec)
         }
@@ -102,9 +105,12 @@ impl<T: Material> Hittable for MovingSphere<T> {
                 normal: Vec3::new(0., 0., 0.),
                 front_face: true,
                 mat: &self.mat,
+                u: 0.,
+                v: 0.,
             };
             let outward_normal = (rec.p - self.get_center(r.tm)) / self.radius; //向外的法向量
             rec.set_face_normal(r, outward_normal);
+            rec.get_sphere_uv(outward_normal);
 
             Option::Some(rec)
         }

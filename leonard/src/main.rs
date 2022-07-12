@@ -9,21 +9,25 @@ pub mod basic_component;
 pub mod hittable;
 pub mod material;
 pub mod optimization;
+pub mod texture;
 pub mod utility; //调用模块
 
 use crate::{
     basic_component::{camera::Camera, ray::Ray, vec3::Vec3},
     hittable::{sphere, HittableList},
     material::{dielectric::Dielectric, lambertian::Lambertian, metal::Metal},
+    texture::{checker::CheckerTexture, solid::SolidColor},
     utility::{get_pixel_color, random_double},
 };
 
 fn random_scene() -> HittableList {
     let mut world: HittableList = Default::default();
 
-    let ground_material = Lambertian {
-        albedo: Vec3::new(0.5, 0.5, 0.5),
-    };
+    let checker = CheckerTexture {
+        odd: SolidColor::new(0.2, 0.3, 0.1),
+        even: SolidColor::new(0.9, 0.9, 0.9),
+    };  //棋盘状的纹理
+    let ground_material = Lambertian { albedo: checker };
 
     world.add(sphere::Sphere {
         center: Vec3::new(0., -1000., 0.),
@@ -44,7 +48,12 @@ fn random_scene() -> HittableList {
                 if choose_mat < 0.8 {
                     //diffuse
                     let _albedo = Vec3::random(0., 1.) * Vec3::random(0., 1.);
-                    let sphere_material = Lambertian { albedo: _albedo };
+                    //随机生成小球的反照率
+                    let __albedo: SolidColor = SolidColor {
+                        color_value: _albedo,
+                    };  
+                    //用反照率对应生成'纹理'颜色
+                    let sphere_material = Lambertian { albedo: __albedo };
                     let _center2 = _center + Vec3::new(0., random_double(0., 0.5), 0.);
                     // world.add(sphere::Sphere {
                     //     center: _center,
@@ -93,7 +102,7 @@ fn random_scene() -> HittableList {
     });
 
     let mat_2 = Lambertian {
-        albedo: Vec3::new(0.4, 0.2, 0.1),
+        albedo: SolidColor::new(0.4, 0.2, 0.1),
     };
     world.add(sphere::Sphere {
         center: Vec3::new(-4., 1., 0.),

@@ -1,5 +1,7 @@
 pub mod sphere;
 
+use std::f64::consts::PI;
+
 use crate::{
     basic_component::{ray::Ray, vec3::Vec3},
     material::Material,
@@ -13,6 +15,8 @@ pub struct HitRecord<'a> {
     pub t: f64,                //对应光线的 at(t)
     pub front_face: bool,      //方向是否为外侧
     pub mat: &'a dyn Material, //材料，变量类型是对包含 Material 结构体的引用
+    pub u: f64,                // 用来表示纹理
+    pub v: f64,
 }
 
 impl<'a> HitRecord<'a> {
@@ -24,6 +28,15 @@ impl<'a> HitRecord<'a> {
         } else {
             self.normal = Vec3::new(0., 0., 0.) - outward_normal;
         }
+    }
+
+    pub fn get_sphere_uv(&mut self, p: Vec3) {
+        // p 是球上的一点
+        let theta = (-p.y).acos();
+        let phi = (-p.z).atan2(p.x) + PI;
+        //相当于 arctan(-p.z / p.x)
+        self.u = phi / (2. * PI);
+        self.v = theta / PI;
     }
 }
 pub trait Hittable {

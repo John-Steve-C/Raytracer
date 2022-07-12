@@ -2,15 +2,19 @@ use crate::{
     basic_component::{ray::Ray, vec3::Vec3},
     hittable::HitRecord,
     material::{Material, ScatterRecord},
+    texture::Texture,
 };
 
-#[derive(Clone, Copy)]
-pub struct Lambertian {
+#[derive(Clone)]
+pub struct Lambertian<T>
+where
+    T: Texture,
+{
     //理想散射
-    pub albedo: Vec3, //反照率
+    pub albedo: T, //反照率
 }
 
-impl Material for Lambertian {
+impl<T: Texture> Material for Lambertian<T> {
     fn scatter(&self, _r_in: Ray, rec: HitRecord) -> Option<ScatterRecord> {
         let mut scatter_dir = rec.normal + Vec3::random_unit_vector();
 
@@ -25,7 +29,7 @@ impl Material for Lambertian {
                 orig: rec.p,
                 tm: _r_in.tm,
             },
-            attenuation: self.albedo,
+            attenuation: self.albedo.get_color_value(rec.u, rec.v, rec.p),
         })
     }
 }
