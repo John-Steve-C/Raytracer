@@ -1,6 +1,7 @@
 use super::Texture;
 use crate::basic_component::vec3::Vec3;
 
+#[derive(Clone, Copy)]
 pub struct CheckerTexture<T>
 // 实现棋盘的颜色
 where

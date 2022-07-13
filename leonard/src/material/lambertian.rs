@@ -5,7 +5,7 @@ use crate::{
     texture::Texture,
 };
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct Lambertian<T>
 where
     T: Texture,

@@ -5,7 +5,7 @@ use crate::{
     optimization::aabb::AABB,
 };
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct Sphere<T>
 where
     T: Material,

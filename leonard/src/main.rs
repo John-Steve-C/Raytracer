@@ -16,9 +16,35 @@ use crate::{
     basic_component::{camera::Camera, ray::Ray, vec3::Vec3},
     hittable::{sphere, HittableList},
     material::{dielectric::Dielectric, lambertian::Lambertian, metal::Metal},
-    texture::{checker::CheckerTexture, solid::SolidColor},
+    texture::{checker::CheckerTexture, perlin::NoiseTexture, perlin::Perlin, solid::SolidColor},
     utility::{get_pixel_color, random_double},
 };
+
+fn two_spheres() -> HittableList {
+    let mut world: HittableList = Default::default();
+    // let checker = CheckerTexture {
+    //     odd : SolidColor::new(0.2, 0.3, 0.1),
+    //     even : SolidColor::new(0.9, 0.9, 0.9),
+    // };
+    let pertext = NoiseTexture {
+        noise: Perlin::new(),
+        scale: 4.,
+    };
+    let mat1 = Lambertian { albedo: pertext };
+
+    world.add(sphere::Sphere {
+        center: Vec3::new(0., -1000., 0.),
+        radius: 1000.,
+        mat: mat1,
+    });
+    world.add(sphere::Sphere {
+        center: Vec3::new(0., 2., 0.),
+        radius: 2.,
+        mat: mat1,
+    });
+
+    world
+}
 
 fn random_scene() -> HittableList {
     let mut world: HittableList = Default::default();
@@ -26,7 +52,7 @@ fn random_scene() -> HittableList {
     let checker = CheckerTexture {
         odd: SolidColor::new(0.2, 0.3, 0.1),
         even: SolidColor::new(0.9, 0.9, 0.9),
-    };  //棋盘状的纹理
+    }; //棋盘状的纹理
     let ground_material = Lambertian { albedo: checker };
 
     world.add(sphere::Sphere {
@@ -51,7 +77,7 @@ fn random_scene() -> HittableList {
                     //随机生成小球的反照率
                     let __albedo: SolidColor = SolidColor {
                         color_value: _albedo,
-                    };  
+                    };
                     //用反照率对应生成'纹理'颜色
                     let sphere_material = Lambertian { albedo: __albedo };
                     let _center2 = _center + Vec3::new(0., random_double(0., 0.5), 0.);
@@ -154,7 +180,11 @@ fn main() {
         1.,
     );
 
-    let world: HittableList = random_scene();
+    let world: HittableList = two_spheres();
+
+    if false {
+        random_scene();
+    } //用来防止报错
 
     // let material_ground = Lambertian {
     //     albedo: Vec3::new(0.8, 0.8, 0.),

@@ -1,12 +1,13 @@
+use super::Texture;
 use crate::basic_component::vec3::Vec3;
 
-use super::Texture;
+#[derive(Clone, Copy)]
 pub struct SolidColor {
     pub color_value: Vec3,
 }
 
 impl Texture for SolidColor {
-    fn get_color_value(&self, u: f64, v: f64, p: Vec3) -> Vec3 {
+    fn get_color_value(&self, _u: f64, _v: f64, _p: Vec3) -> Vec3 {
         self.color_value
     }
 }

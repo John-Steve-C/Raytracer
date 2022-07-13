@@ -48,6 +48,36 @@ book1，Image21
 
     如果内部没有其他固体杂质，那么可以认为全都是折射，观察到的图像是上下颠倒的（现实中少见）
 
+### optimiaztion
+
+利用了 BVH（Bounding Volume Hierarchies）来加快渲染速度，实现的模型为 AABB（Axis-Aligned Bounding Boxes）
+
+简单来说，就是把所有的球用长方体包起来，让光线与球相撞 `->` 光线和长方体相撞。
+
+然后二分这个长方体，$O(N)$ `->` $O(\log N)$
+
+### texture
+
+为材料添加纹理，代码上体现为：
+
+```rust
+#[derive(Clone)]
+pub struct Lambertian<T> 
+where
+	T : Texture
+{
+    pub albedo: T,
+}
+```
+
+即只有具有 `Texture` 这一 `trait` 的变量类型，才能为其中的 `albedo` 赋值
+
+目前实现了
+
+- solid：纯色
+- checker：棋盘状的纹理
+- perlin：利用 perlin算法（自然噪声发生的伪随机算法）计算出的白噪声图形（噪点？），随后加入了平滑优化/频率控制/防止网格化，最后得到大理石纹理
+
 ### 核心操作：
 
 1. 计算从眼睛（原点）出发，到达像素的光线路径
