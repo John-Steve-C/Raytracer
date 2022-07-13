@@ -4,9 +4,9 @@
 
 ## 当前进度
 
-book1，Image21
+book2，Image13
 
-![](https://s3.bmp.ovh/imgs/2022/07/10/462f85955635e531.jpg)
+![](https://s3.bmp.ovh/imgs/2022/07/13/27e824a2679e7848.jpg)
 
 ## 项目内容
 
