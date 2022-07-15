@@ -14,11 +14,148 @@ pub mod utility; //调用模块
 
 use crate::{
     basic_component::{camera::Camera, ray::Ray, vec3::Vec3},
-    hittable::{sphere, HittableList},
-    material::{dielectric::Dielectric, lambertian::Lambertian, metal::Metal},
-    texture::{checker::CheckerTexture, perlin::NoiseTexture, perlin::Perlin, solid::SolidColor},
+    hittable::{
+        aarect::{XYRect, XZRect, YZRect},
+        sphere::{MovingSphere, Sphere},
+        HittableList,
+    },
+    material::{
+        dielectric::Dielectric, diffuse_light::DiffuseLight, lambertian::Lambertian, metal::Metal,
+    },
+    texture::{
+        checker::CheckerTexture, image::ImageTexture, perlin::NoiseTexture, perlin::Perlin,
+        solid::SolidColor,
+    },
     utility::{get_pixel_color, random_double},
 };
+
+fn cornell_box() -> HittableList {
+    let mut world: HittableList = Default::default();
+
+    let red = Lambertian {
+        albedo: SolidColor {
+            color_value: Vec3::new(0.65, 0.05, 0.05),
+        },
+    };
+    let white = Lambertian {
+        albedo: SolidColor {
+            color_value: Vec3::new(0.73, 0.73, 0.73),
+        },
+    };
+    let green = Lambertian {
+        albedo: SolidColor {
+            color_value: Vec3::new(0.12, 0.45, 0.15),
+        },
+    };
+    let light = DiffuseLight {
+        emit: SolidColor {
+            color_value: Vec3::new(15., 15., 15.),
+        },
+    };
+
+    world.add(YZRect {
+        y0: 0.,
+        y1: 555.,
+        z0: 0.,
+        z1: 555.,
+        k: 555.,
+        mp: green,
+    });
+    world.add(YZRect {
+        y0: 0.,
+        y1: 555.,
+        z0: 0.,
+        z1: 555.,
+        k: 0.,
+        mp: red,
+    });
+    world.add(XZRect {
+        x0: 213.,
+        x1: 343.,
+        z0: 227.,
+        z1: 332.,
+        k: 554.,
+        mp: light,
+    });
+    world.add(XZRect {
+        x0: 0.,
+        x1: 555.,
+        z0: 0.,
+        z1: 555.,
+        k: 0.,
+        mp: white,
+    });
+    world.add(XZRect {
+        x0: 0.,
+        x1: 555.,
+        z0: 0.,
+        z1: 555.,
+        k: 555.,
+        mp: white,
+    });
+    world.add(XYRect {
+        x0: 0.,
+        x1: 555.,
+        y0: 0.,
+        y1: 555.,
+        k: 555.,
+        mp: white,
+    });
+
+    world
+}
+
+fn simple_light() -> HittableList {
+    let mut world: HittableList = Default::default();
+
+    let pertext = NoiseTexture {
+        noise: Perlin::new(),
+        scale: 4.,
+    };
+    let mat1 = Lambertian { albedo: pertext };
+    world.add(Sphere {
+        center: Vec3::new(0., -1000., 0.),
+        radius: 1000.,
+        mat: mat1,
+    });
+    world.add(Sphere {
+        center: Vec3::new(0., 2., 0.),
+        radius: 2.,
+        mat: mat1,
+    });
+
+    let solidtext = SolidColor::new(4., 4., 4.);
+    let mat2 = DiffuseLight { emit: solidtext };
+    world.add(XYRect {
+        x0: 3.,
+        x1: 5.,
+        y0: 1.,
+        y1: 3.,
+        k: -2.,
+        mp: mat2,
+    });
+    world.add(Sphere {
+        center: Vec3::new(0., 7., 0.),
+        radius: 2.,
+        mat: mat2,
+    });
+
+    world
+}
+
+fn earth() -> HittableList {
+    let mut world: HittableList = Default::default();
+    let image = ImageTexture::new_from_file("earthmap.jpg");
+    let mat1 = Lambertian { albedo: image };
+
+    world.add(Sphere {
+        center: Vec3::new(0., 0., 0.),
+        radius: 2.,
+        mat: mat1,
+    });
+
+    world
+}
 
 fn two_spheres() -> HittableList {
     let mut world: HittableList = Default::default();
@@ -32,12 +169,12 @@ fn two_spheres() -> HittableList {
     };
     let mat1 = Lambertian { albedo: pertext };
 
-    world.add(sphere::Sphere {
+    world.add(Sphere {
         center: Vec3::new(0., -1000., 0.),
         radius: 1000.,
         mat: mat1,
     });
-    world.add(sphere::Sphere {
+    world.add(Sphere {
         center: Vec3::new(0., 2., 0.),
         radius: 2.,
         mat: mat1,
@@ -55,7 +192,7 @@ fn random_scene() -> HittableList {
     }; //棋盘状的纹理
     let ground_material = Lambertian { albedo: checker };
 
-    world.add(sphere::Sphere {
+    world.add(Sphere {
         center: Vec3::new(0., -1000., 0.),
         radius: 1000.,
         mat: ground_material,
@@ -86,7 +223,7 @@ fn random_scene() -> HittableList {
                     //     radius: 0.2,
                     //     mat: sphere_material,
                     // });
-                    world.add(sphere::MovingSphere {
+                    world.add(MovingSphere {
                         center0: _center,
                         center1: _center2,
                         time0: 0.,
@@ -102,7 +239,7 @@ fn random_scene() -> HittableList {
                         albedo: _albedo,
                         fuzz: _fuzz,
                     };
-                    world.add(sphere::Sphere {
+                    world.add(Sphere {
                         center: _center,
                         radius: 0.2,
                         mat: sphere_material,
@@ -110,7 +247,7 @@ fn random_scene() -> HittableList {
                 } else {
                     //glass
                     let sphere_material = Dielectric { ir: 1.5 };
-                    world.add(sphere::Sphere {
+                    world.add(Sphere {
                         center: _center,
                         radius: 0.2,
                         mat: sphere_material,
@@ -121,7 +258,7 @@ fn random_scene() -> HittableList {
     }
 
     let mat_1 = Dielectric { ir: 1.5 };
-    world.add(sphere::Sphere {
+    world.add(Sphere {
         center: Vec3::new(0., 1., 0.),
         radius: 1.,
         mat: mat_1,
@@ -130,7 +267,7 @@ fn random_scene() -> HittableList {
     let mat_2 = Lambertian {
         albedo: SolidColor::new(0.4, 0.2, 0.1),
     };
-    world.add(sphere::Sphere {
+    world.add(Sphere {
         center: Vec3::new(-4., 1., 0.),
         radius: 1.,
         mat: mat_2,
@@ -140,7 +277,7 @@ fn random_scene() -> HittableList {
         albedo: Vec3::new(0.7, 0.6, 0.5),
         fuzz: 0.,
     };
-    world.add(sphere::Sphere {
+    world.add(Sphere {
         center: Vec3::new(4., 1., 0.),
         radius: 1.,
         mat: mat_3,
@@ -153,26 +290,27 @@ fn main() {
     print!("{}[2J", 27 as char); // Clear screen
     print!("{esc}[2J{esc}[1;1H", esc = 27 as char); // Set cursor position as 1,1
 
-    let aspect_ratio = 16. / 9.;
-    let width = 400;
+    let aspect_ratio = 1.;
+    let width = 600;
     let height = (width as f64 / aspect_ratio) as u32;
     let quality = 100; // From 0 to 100
     let path = "output/output.jpg";
 
-    let samples_per_pixel = 100;
+    let samples_per_pixel = 200;
     let max_depth = 50;
 
-    let lookfrom = Vec3::new(13., 2., 3.);
-    let lookat = Vec3::new(0., 0., 0.);
+    let lookfrom = Vec3::new(278., 278., -800.);
+    let lookat = Vec3::new(278., 278., 0.);
     let vup = Vec3::new(0., 1., 0.);
     let aperture = 0.1;
     let dist_to_focus = 10.;
+    let background = Vec3::new(0., 0., 0.);
 
     let cam: Camera = Camera::new(
         lookfrom,
         lookat,
         vup,
-        20.,
+        40.,
         aspect_ratio,
         aperture,
         dist_to_focus,
@@ -180,51 +318,14 @@ fn main() {
         1.,
     );
 
-    let world: HittableList = two_spheres();
+    let world: HittableList = cornell_box();
 
     if false {
         random_scene();
+        two_spheres();
+        earth();
+        simple_light();
     } //用来防止报错
-
-    // let material_ground = Lambertian {
-    //     albedo: Vec3::new(0.8, 0.8, 0.),
-    // };
-    // let material_center = Lambertian {
-    //     albedo: Vec3::new(0.1, 0.2, 0.5)
-    // };
-    // let material_left = Dielectric {
-    //     ir: 1.5,
-    // };
-    // let material_right = Metal {
-    //     albedo: Vec3::new(0.8, 0.6, 0.2),
-    //     fuzz: 0.
-    // };
-
-    // world.add(sphere::Sphere {
-    //     center: Vec3::new(0., -100.5, -1.),
-    //     radius: 100.,
-    //     mat: material_ground,
-    // });
-    // world.add(sphere::Sphere {
-    //     center: Vec3::new(0., 0., -1.),
-    //     radius: 0.5,
-    //     mat: material_center,
-    // });
-    // world.add(sphere::Sphere {
-    //     center: Vec3::new(-1., 0., -1.),
-    //     radius: 0.5,
-    //     mat: material_left,
-    // });
-    // world.add(sphere::Sphere {
-    //     center: Vec3::new(-1., 0., -1.),
-    //     radius: -0.45,
-    //     mat: material_left,
-    // });
-    // world.add(sphere::Sphere {
-    //     center: Vec3::new(1., 0., -1.),
-    //     radius: 0.5,
-    //     mat: material_right,
-    // });
 
     println!(
         "Image size: {}\nJPEG quality: {}",
@@ -255,7 +356,7 @@ fn main() {
                 let v = (y as f64 + random_double(0., 1.)) / (height - 1) as f64;
 
                 let r = cam.get_ray(u, v); //多次求通过该像素的光线
-                color += Ray::ray_color(r, &world, max_depth);
+                color += Ray::ray_color(r, background, &world, max_depth);
             }
 
             //上色

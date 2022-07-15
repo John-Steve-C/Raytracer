@@ -6,7 +6,7 @@
 
 book2，Image13
 
-![](https://s3.bmp.ovh/imgs/2022/07/13/27e824a2679e7848.jpg)
+![](https://s3.bmp.ovh/imgs/2022/07/15/c04af36edbe09680.jpg)
 
 ## 项目内容
 
@@ -30,7 +30,7 @@ book2，Image13
 
 ### hittable
 
-所有能和光线发生碰撞的物体，比如球体 sphere
+所有能和光线发生碰撞的物体，比如球体 sphere，和某些坐标轴垂直的长方形 aarect
 
 同时，在 mod.rs 中实现了 HitRecord、HittableList 类，以及 Hittable 这一特性
 
@@ -47,6 +47,7 @@ book2，Image13
     同时发生 **反射** 和 **折射**
 
     如果内部没有其他固体杂质，那么可以认为全都是折射，观察到的图像是上下颠倒的（现实中少见）
+- 主动发光的物体 diffuse_light，他们具有反射和发光两种性质
 
 ### optimiaztion
 
@@ -77,6 +78,7 @@ where
 - solid：纯色
 - checker：棋盘状的纹理
 - perlin：利用 perlin算法（自然噪声发生的伪随机算法）计算出的白噪声图形（噪点？），随后加入了平滑优化/频率控制/防止网格化，最后得到大理石纹理
+- image：实现贴图功能
 
 ### 核心操作：
 

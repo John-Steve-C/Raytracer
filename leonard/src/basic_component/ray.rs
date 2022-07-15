@@ -16,7 +16,7 @@ impl Ray {
 }
 
 impl Ray {
-    pub fn ray_color<T>(r: Ray, world: &T, depth: i32) -> Vec3
+    pub fn ray_color<T>(r: Ray, background: Vec3, world: &T, depth: i32) -> Vec3
     where
         T: Hittable + 'static,
     {
@@ -26,19 +26,28 @@ impl Ray {
             return Vec3::new(0., 0., 0.);
         }
 
+        let emitted: Vec3;
+        // 判断是否碰到物体
+        // t_min 修正为 0.01，因为光线并不是在 t=0 处才会击中物体
         if let Some(temp_rec) = world.hit(r, 0.001, INFINITY) {
+            emitted = temp_rec.mat.emitted(temp_rec.u, temp_rec.v, temp_rec.p);
+
             //考虑金属的反射
-            // t_min 修正为 0.01，因为光线并不是在 t=0 处才会击中物体
             if let Some(temp_scatter) = temp_rec.mat.scatter(r, temp_rec) {
-                Ray::ray_color(temp_scatter.scattered, world, depth - 1) * temp_scatter.attenuation
+                // 如果有，就是二者叠加的颜色
+                emitted
+                    + Ray::ray_color(temp_scatter.scattered, background, world, depth - 1)
+                        * temp_scatter.attenuation
             } else {
-                Vec3::new(0., 0., 0.)
+                // 金属没有反射，直接发光
+                emitted
             }
         } else {
-            //背景的颜色
-            let unit_dir = Vec3::unit_vector(r.dir);
-            let t = 0.5 * (unit_dir.y + 1.);
-            Vec3::new(1., 1., 1.) * (1. - t) + Vec3::new(0.5, 0.7, 1.) * t
+            //没碰到物体，就返回背景的颜色
+            // let unit_dir = Vec3::unit_vector(r.dir);
+            // let t = 0.5 * (unit_dir.y + 1.);
+            // Vec3::new(1., 1., 1.) * (1. - t) + Vec3::new(0.5, 0.7, 1.) * t //渐变色
+            background
         }
     }
 }
