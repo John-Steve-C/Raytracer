@@ -16,8 +16,10 @@ use crate::{
     basic_component::{camera::Camera, ray::Ray, vec3::Vec3},
     hittable::{
         aarect::{XYRect, XZRect, YZRect},
+        r#box::Box,
         sphere::{MovingSphere, Sphere},
         HittableList,
+        instance::{rotate::RotateY, translate::Translate},
     },
     material::{
         dielectric::Dielectric, diffuse_light::DiffuseLight, lambertian::Lambertian, metal::Metal,
@@ -101,6 +103,42 @@ fn cornell_box() -> HittableList {
         k: 555.,
         mp: white,
     });
+
+    // world.add(Box::new(
+    //     Vec3::new(130., 0., 65.),
+    //     Vec3::new(295., 165., 230.),
+    //     white,
+    // ));
+    // world.add(Box::new(
+    //     Vec3::new(265., 0., 295.),
+    //     Vec3::new(430., 330., 460.),
+    //     white,
+    // ));
+
+    let box1 = Box::new(
+        Vec3::new(0., 0., 0.), 
+        Vec3::new(165., 330., 165.), 
+        white
+    );
+    let box2 = Box::new(
+        Vec3::new(0., 0., 0.), 
+        Vec3::new(165., 165., 165.), 
+        white
+    );
+
+    let rt1 = RotateY::new(box1, 15.);
+    let tr1 = Translate{
+        after_box : rt1,
+        offset : Vec3::new(265., 0., 295.),
+    };
+    world.add(tr1);
+
+    let rt2 = RotateY::new(box2, -18.);
+    let tr2 = Translate{
+        after_box : rt2,
+        offset : Vec3::new(130., 0., 65.),
+    };
+    world.add(tr2);
 
     world
 }
@@ -302,7 +340,7 @@ fn main() {
     let lookfrom = Vec3::new(278., 278., -800.);
     let lookat = Vec3::new(278., 278., 0.);
     let vup = Vec3::new(0., 1., 0.);
-    let aperture = 0.1;
+    let aperture = 0.; // 光圈，用来控制虚化
     let dist_to_focus = 10.;
     let background = Vec3::new(0., 0., 0.);
 
