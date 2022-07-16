@@ -1,23 +1,23 @@
 use crate::{
-    hittable::{Hittable, HitRecord},
-    basic_component::{vec3::Vec3, ray::Ray},
+    basic_component::{ray::Ray, vec3::Vec3},
+    hittable::{HitRecord, Hittable},
     optimization::aabb::AABB,
 };
 
 pub struct Translate<T>
 where
-    T : Hittable,
+    T: Hittable,
 {
-    pub offset : Vec3,
-    pub after_box : T,
+    pub offset: Vec3,
+    pub after_box: T,
 }
 
-impl <T : Hittable> Hittable for Translate<T> {
+impl<T: Hittable> Hittable for Translate<T> {
     fn hit(&self, r: Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
-        let moved_ray = Ray{
-            orig : r.orig - self.offset,
-            dir : r.dir,
-            tm : r.tm,
+        let moved_ray = Ray {
+            orig: r.orig - self.offset,
+            dir: r.dir,
+            tm: r.tm,
         };
         if let Some(mut rec) = self.after_box.hit(moved_ray, t_min, t_max) {
             rec.p += self.offset;
@@ -35,6 +35,15 @@ impl <T : Hittable> Hittable for Translate<T> {
             Some(outbox)
         } else {
             None
+        }
+    }
+}
+
+impl<T: Hittable> Translate<T> {
+    pub fn new(_after: T, _off: Vec3) -> Self {
+        Self {
+            offset: _off,
+            after_box: _after,
         }
     }
 }

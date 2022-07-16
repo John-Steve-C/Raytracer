@@ -31,54 +31,12 @@ impl Hittable for Box {
 impl Box {
     pub fn new<T: 'static + Copy + Material>(p0: Vec3, p1: Vec3, mat: T) -> Self {
         let mut _sides: HittableList = Default::default();
-        _sides.add(XYRect {
-            x0: p0.x,
-            x1: p1.x,
-            y0: p0.y,
-            y1: p1.y,
-            k: p1.z,
-            mp: mat,
-        });
-        _sides.add(XYRect {
-            x0: p0.x,
-            x1: p1.x,
-            y0: p0.y,
-            y1: p1.y,
-            k: p0.z,
-            mp: mat,
-        });
-        _sides.add(XZRect {
-            x0: p0.x,
-            x1: p1.x,
-            z0: p0.z,
-            z1: p1.z,
-            k: p1.y,
-            mp: mat,
-        });
-        _sides.add(XZRect {
-            x0: p0.x,
-            x1: p1.x,
-            z0: p0.z,
-            z1: p1.z,
-            k: p0.y,
-            mp: mat,
-        });
-        _sides.add(YZRect {
-            y0: p0.y,
-            y1: p1.y,
-            z0: p0.z,
-            z1: p1.z,
-            k: p1.x,
-            mp: mat,
-        });
-        _sides.add(YZRect {
-            y0: p0.y,
-            y1: p1.y,
-            z0: p0.z,
-            z1: p1.z,
-            k: p0.x,
-            mp: mat,
-        });
+        _sides.add(XYRect::new(p0.x, p1.x, p0.y, p1.y, p1.z, mat));
+        _sides.add(XYRect::new(p0.x, p1.x, p0.y, p1.y, p0.z, mat));
+        _sides.add(XZRect::new(p0.x, p1.x, p0.z, p1.z, p1.y, mat));
+        _sides.add(XZRect::new(p0.x, p1.x, p0.z, p1.z, p0.y, mat));
+        _sides.add(YZRect::new(p0.y, p1.y, p0.z, p1.z, p1.x, mat));
+        _sides.add(YZRect::new(p0.y, p1.y, p0.z, p1.z, p0.x, mat));
 
         Self {
             box_min: p0,

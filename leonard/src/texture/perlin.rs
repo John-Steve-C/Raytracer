@@ -126,3 +126,12 @@ impl Texture for NoiseTexture {
         //利用正弦函数模拟出大理石的纹理
     }
 }
+
+impl NoiseTexture {
+    pub fn new(_noise: Perlin, _s: f64) -> Self {
+        Self {
+            noise: _noise,
+            scale: _s,
+        }
+    }
+}

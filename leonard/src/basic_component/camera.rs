@@ -66,13 +66,11 @@ impl Camera {
         let rd = Vec3::random_in_unit_disk() * self.lens_radius;
         let offset = self.u * rd.x + self.v * rd.y;
 
-        Ray {
-            dir: (self.lower_left_corner + self.horizontal * u + self.vertical * v
-                - self.origin
-                - offset),
-            orig: (self.origin + offset),
-            tm: random_double(self.time0, self.time1),
-            // 光线在拍摄时间内随机生成
-        }
+        Ray::new(
+            self.origin + offset,
+            self.lower_left_corner + self.horizontal * u + self.vertical * v - self.origin - offset,
+            random_double(self.time0, self.time1),
+        )
+        // 光线在拍摄时间内随机生成
     }
 }

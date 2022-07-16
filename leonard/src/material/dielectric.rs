@@ -44,12 +44,14 @@ impl Material for Dielectric {
         }
 
         Some(ScatterRecord {
-            scattered: Ray {
-                dir: _dir,
-                orig: rec.p,
-                tm: r_in.tm,
-            },
+            scattered: Ray::new(rec.p, _dir, r_in.tm),
             attenuation: Vec3::new(1., 1., 1.),
         })
+    }
+}
+
+impl Dielectric {
+    pub fn new(c: f64) -> Self {
+        Self { ir: c }
     }
 }

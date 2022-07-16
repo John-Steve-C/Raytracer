@@ -62,6 +62,16 @@ impl<T: Material> Hittable for Sphere<T> {
     }
 }
 
+impl<T: Material> Sphere<T> {
+    pub fn new(_cen: Vec3, r: f64, _mat: T) -> Self {
+        Self {
+            center: _cen,
+            radius: r,
+            mat: _mat,
+        }
+    }
+}
+
 //--------------------moving_sphere--------------
 
 #[derive(Clone)]
@@ -136,5 +146,16 @@ impl<T: Material> MovingSphere<T> {
         // 球心的位置随时间线性变化
         self.center0
             + (self.center1 - self.center0) * ((time - self.time0) / (self.time1 - self.time0))
+    }
+
+    pub fn new(r: f64, _c0: Vec3, _c1: Vec3, _t0: f64, _t1: f64, _mat: T) -> Self {
+        Self {
+            radius: r,
+            mat: _mat,
+            center0: _c0,
+            center1: _c1,
+            time0: _t0,
+            time1: _t1,
+        }
     }
 }

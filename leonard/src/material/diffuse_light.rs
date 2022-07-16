@@ -2,7 +2,7 @@ use crate::{
     basic_component::{ray::Ray, vec3::Vec3},
     hittable::HitRecord,
     material::Material,
-    texture::Texture,
+    texture::{solid::SolidColor, Texture},
 };
 
 use super::ScatterRecord;
@@ -22,5 +22,19 @@ impl<T: Texture> Material for DiffuseLight<T> {
     }
     fn emitted(&self, u: f64, v: f64, p: Vec3) -> Vec3 {
         self.emit.get_color_value(u, v, p)
+    }
+}
+
+impl<T: Texture> DiffuseLight<T> {
+    pub fn new(c: T) -> Self {
+        Self { emit: c }
+    }
+}
+
+impl DiffuseLight<SolidColor> {
+    pub fn new_from_color(c: Vec3) -> Self {
+        Self {
+            emit: SolidColor { color_value: c },
+        }
     }
 }

@@ -13,11 +13,11 @@ pub struct Metal {
 impl Material for Metal {
     fn scatter(&self, r_in: Ray, rec: HitRecord) -> Option<ScatterRecord> {
         let reflected = Vec3::reflect(Vec3::unit_vector(r_in.dir), rec.normal);
-        let _scattered = Ray {
-            dir: reflected + Vec3::random_vec_in_unit_sphere() * self.fuzz, //模糊化反射
-            orig: rec.p,
-            tm: r_in.tm,
-        };
+        let _scattered = Ray::new(
+            rec.p,
+            reflected + Vec3::random_vec_in_unit_sphere() * self.fuzz, //模糊化反射
+            r_in.tm,
+        );
         let _attenuation = self.albedo;
 
         if Vec3::dot(_scattered.dir, rec.normal) > 0. {
@@ -27,6 +27,15 @@ impl Material for Metal {
             })
         } else {
             None
+        }
+    }
+}
+
+impl Metal {
+    pub fn new(_alb: Vec3, _fuzz: f64) -> Self {
+        Self {
+            albedo: _alb,
+            fuzz: _fuzz,
         }
     }
 }

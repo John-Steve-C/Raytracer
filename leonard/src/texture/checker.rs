@@ -22,4 +22,11 @@ impl<T: Texture> Texture for CheckerTexture<T> {
     }
 }
 
-impl<T: Texture> CheckerTexture<T> {}
+impl<T: Texture> CheckerTexture<T> {
+    pub fn new(_odd: T, _even: T) -> Self {
+        Self {
+            odd: _odd,
+            even: _even,
+        }
+    }
+}

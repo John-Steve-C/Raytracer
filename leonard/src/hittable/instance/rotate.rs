@@ -1,24 +1,25 @@
 use std::f64::INFINITY;
 
 use crate::{
-    hittable::{Hittable, HitRecord},
-    basic_component::{vec3::Vec3, ray::Ray},
+    basic_component::{ray::Ray, vec3::Vec3},
+    hittable::{HitRecord, Hittable},
     optimization::aabb::AABB,
-    utility::{degree_to_radian, min_f64, max_f64},
+    utility::{degree_to_radian, max_f64, min_f64},
 };
 
-pub struct RotateY<T>   //绕y轴旋转
+pub struct RotateY<T>
+//绕y轴旋转
 where
-    T : Hittable,
+    T: Hittable,
 {
-    pub sin_theta : f64,
-    pub cos_theta : f64,
-    pub hasbox : bool,
-    pub bbox : AABB,
-    pub after_box : T,  //旋转后的结果
+    pub sin_theta: f64,
+    pub cos_theta: f64,
+    pub hasbox: bool,
+    pub bbox: AABB,
+    pub after_box: T, //旋转后的结果
 }
 
-impl <T : Hittable> Hittable for RotateY<T> {
+impl<T: Hittable> Hittable for RotateY<T> {
     fn bounding_box(&self, _time0: f64, _time1: f64) -> Option<AABB> {
         if self.hasbox {
             Some(self.bbox)
@@ -37,7 +38,11 @@ impl <T : Hittable> Hittable for RotateY<T> {
         _dir[0] = self.cos_theta * r.dir[0] - self.sin_theta * r.dir[2];
         _dir[2] = self.sin_theta * r.dir[0] + self.cos_theta * r.dir[2];
 
-        let rotated_ray = Ray{dir : _dir, orig : _orig, tm : r.tm};
+        let rotated_ray = Ray {
+            dir: _dir,
+            orig: _orig,
+            tm: r.tm,
+        };
         if let Some(mut rec) = self.after_box.hit(rotated_ray, t_min, t_max) {
             let mut _p = rec.p;
             let mut _normal = rec.normal;
@@ -58,14 +63,14 @@ impl <T : Hittable> Hittable for RotateY<T> {
     }
 }
 
-impl <T : Hittable> RotateY<T>{
-    pub fn new(p : T, angle : f64) -> Self{
+impl<T: Hittable> RotateY<T> {
+    pub fn new(p: T, angle: f64) -> Self {
         let radians = degree_to_radian(angle); //旋转角
         let _sin = radians.sin();
         let _cos = radians.cos();
 
         let flag;
-        let mut tp_box : AABB = Default::default();
+        let mut tp_box: AABB = Default::default();
         if let Some(_box) = p.bounding_box(0., 1.) {
             flag = true;
             tp_box = _box;
@@ -95,12 +100,15 @@ impl <T : Hittable> RotateY<T>{
             }
         }
 
-        Self { 
-            sin_theta: _sin, 
-            cos_theta: _cos, 
-            hasbox: flag, 
-            bbox: AABB { minimum: min_v, maximum: max_v }, 
-            after_box: p, 
+        Self {
+            sin_theta: _sin,
+            cos_theta: _cos,
+            hasbox: flag,
+            bbox: AABB {
+                minimum: min_v,
+                maximum: max_v,
+            },
+            after_box: p,
         }
     }
 }

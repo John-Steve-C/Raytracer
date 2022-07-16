@@ -1,5 +1,6 @@
 pub mod dielectric;
 pub mod diffuse_light;
+pub mod isotropic;
 pub mod lambertian;
 pub mod metal;
 
@@ -21,4 +22,13 @@ pub struct ScatterRecord {
     //保存反射的结果
     pub attenuation: Vec3, //衰减系数
     pub scattered: Ray,    //反射光
+}
+
+impl ScatterRecord {
+    pub fn new(_att: Vec3, r: Ray) -> Self {
+        Self {
+            attenuation: _att,
+            scattered: r,
+        }
+    }
 }

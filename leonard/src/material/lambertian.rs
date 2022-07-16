@@ -2,7 +2,7 @@ use crate::{
     basic_component::{ray::Ray, vec3::Vec3},
     hittable::HitRecord,
     material::{Material, ScatterRecord},
-    texture::Texture,
+    texture::{solid::SolidColor, Texture},
 };
 
 #[derive(Clone, Copy)]
@@ -24,12 +24,23 @@ impl<T: Texture> Material for Lambertian<T> {
         }
         //过小时，修正
         Some(ScatterRecord {
-            scattered: Ray {
-                dir: scatter_dir,
-                orig: rec.p,
-                tm: _r_in.tm,
-            },
+            scattered: Ray::new(rec.p, scatter_dir, _r_in.tm),
             attenuation: self.albedo.get_color_value(rec.u, rec.v, rec.p),
         })
+    }
+}
+
+impl<T: Texture> Lambertian<T> {
+    pub fn new(c: T) -> Self {
+        Self { albedo: c }
+    }
+}
+
+impl Lambertian<SolidColor> {
+    // 指定特定类型的构造函数
+    pub fn new_from_color(c: Vec3) -> Self {
+        Self {
+            albedo: SolidColor { color_value: c },
+        }
     }
 }

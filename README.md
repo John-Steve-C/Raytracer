@@ -4,9 +4,9 @@
 
 ## 当前进度
 
-book2，Image13
+book2，Image22（只采用了 samples_per_pixel = 50，因为本地实在跑不动）
 
-![](https://s3.bmp.ovh/imgs/2022/07/15/c04af36edbe09680.jpg)
+![](https://s3.bmp.ovh/imgs/2022/07/16/4401691eed0907a6.jpg)
 
 ## 项目内容
 
@@ -30,7 +30,12 @@ book2，Image13
 
 ### hittable
 
-所有能和光线发生碰撞的物体，比如球体 sphere，和某些坐标轴垂直的长方形 aarect
+所有能和光线发生碰撞的物体，
+
+- 球体 sphere
+- 和某些坐标轴垂直的长方形 aarect
+- 由 aarect 围成的长方体 box
+- `instance` 文件夹：对物体进行基本的变换，比如旋转 rotate，平移 translate，雾化 constant_mediun
 
 同时，在 mod.rs 中实现了 HitRecord、HittableList 类，以及 Hittable 这一特性
 
@@ -47,7 +52,11 @@ book2，Image13
     同时发生 **反射** 和 **折射**
 
     如果内部没有其他固体杂质，那么可以认为全都是折射，观察到的图像是上下颠倒的（现实中少见）
-- 主动发光的物体 diffuse_light，他们具有反射和发光两种性质
+- 主动发光的物体 diffuse_light，他们具有反射和发光两种性质，可以充当光源
+
+> 实际上，本模型并没有对 **亮度** 这一参数做出有效的控制
+
+- 各向同性 isotropic，用来实现雾化效果
 
 ### optimiaztion
 
@@ -56,6 +65,8 @@ book2，Image13
 简单来说，就是把所有的球用长方体包起来，让光线与球相撞 `->` 光线和长方体相撞。
 
 然后二分这个长方体，$O(N)$ `->` $O(\log N)$
+
+可能可以采用更好的算法来加速渲染，比如八叉树、包围球等等
 
 ### texture
 
@@ -94,7 +105,7 @@ where
 ---
 
 - [x] 学习并实现 book_1
-- [ ] ... book_2
+- [x] ... book_2
 - [ ] ... book_3
 
 ---

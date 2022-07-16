@@ -1,7 +1,7 @@
 pub mod aarect;
 pub mod r#box;
-pub mod sphere;
 pub mod instance;
+pub mod sphere;
 
 use std::f64::consts::PI;
 

@@ -54,6 +54,19 @@ impl<T: Material> Hittable for XYRect<T> {
     }
 }
 
+impl<T: Material> XYRect<T> {
+    pub fn new(_x0: f64, _x1: f64, _y0: f64, _y1: f64, _k: f64, _mp: T) -> Self {
+        Self {
+            x0: _x0,
+            x1: _x1,
+            y0: _y0,
+            y1: _y1,
+            k: _k,
+            mp: _mp,
+        }
+    }
+}
+
 pub struct XZRect<T>
 where
     T: Material,
@@ -101,6 +114,18 @@ impl<T: Material> Hittable for XZRect<T> {
     }
 }
 
+impl<T: Material> XZRect<T> {
+    pub fn new(_x0: f64, _x1: f64, _z0: f64, _z1: f64, _k: f64, _mp: T) -> Self {
+        Self {
+            x0: _x0,
+            x1: _x1,
+            z0: _z0,
+            z1: _z1,
+            k: _k,
+            mp: _mp,
+        }
+    }
+}
 pub struct YZRect<T>
 where
     T: Material,
@@ -145,5 +170,18 @@ impl<T: Material> Hittable for YZRect<T> {
         };
         rec.set_face_normal(r, outward_normal);
         Some(rec)
+    }
+}
+
+impl<T: Material> YZRect<T> {
+    pub fn new(_y0: f64, _y1: f64, _z0: f64, _z1: f64, _k: f64, _mp: T) -> Self {
+        Self {
+            y0: _y0,
+            y1: _y1,
+            z0: _z0,
+            z1: _z1,
+            k: _k,
+            mp: _mp,
+        }
     }
 }

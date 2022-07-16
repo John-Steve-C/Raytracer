@@ -50,4 +50,12 @@ impl Ray {
             background
         }
     }
+
+    pub fn new(_ori: Vec3, _d: Vec3, t: f64) -> Self {
+        Self {
+            dir: _d,
+            orig: _ori,
+            tm: t,
+        }
+    }
 }

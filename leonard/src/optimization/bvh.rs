@@ -32,8 +32,11 @@ impl Hittable for BvhNode {
             hit_rec = Some(hit_left);
             //顺序不能调换，否则 hit_left 已经被移动，所有权变化
         }
-        if let Some(hit_right) = self.right.as_ref().unwrap().hit(r, t_min, closest_so_far) {
-            hit_rec = Some(hit_right);
+        // 必须先判定 右分支是否为 None
+        if self.right.is_some() {
+            if let Some(hit_right) = self.right.as_ref().unwrap().hit(r, t_min, closest_so_far) {
+                hit_rec = Some(hit_right);
+            }
         }
 
         hit_rec
