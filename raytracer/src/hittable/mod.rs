@@ -1,5 +1,5 @@
 pub mod aarect;
-pub mod r#box;
+pub mod cube;
 pub mod instance;
 pub mod sphere;
 

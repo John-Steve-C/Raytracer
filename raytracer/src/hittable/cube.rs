@@ -9,13 +9,13 @@ use crate::{
 };
 
 #[derive(Default)]
-pub struct Box {
+pub struct Cube {
     pub box_min: Vec3,
     pub box_max: Vec3,
     pub sides: HittableList,
 }
 
-impl Hittable for Box {
+impl Hittable for Cube {
     fn bounding_box(&self, _time0: f64, _time1: f64) -> Option<AABB> {
         Some(AABB {
             minimum: self.box_min,
@@ -28,7 +28,7 @@ impl Hittable for Box {
     }
 }
 
-impl Box {
+impl Cube {
     pub fn new<T: 'static + Copy + Material>(p0: Vec3, p1: Vec3, mat: T) -> Self {
         let mut _sides: HittableList = Default::default();
         _sides.add(XYRect::new(p0.x, p1.x, p0.y, p1.y, p1.z, mat));

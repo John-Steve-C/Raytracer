@@ -23,7 +23,7 @@ use crate::{
     hittable::{
         aarect::{XYRect, XZRect, YZRect},
         instance::{constant_medium::ConstantMedium, rotate::RotateY, translate::Translate},
-        r#box::Box,
+        cube::Cube,
         sphere::{MovingSphere, Sphere},
         HittableList,
     },
@@ -56,7 +56,7 @@ fn scene_book2() -> HittableList {
             let y1 = random_double(1., 101.);
             let z1 = z0 + w;
 
-            boxes1.add(Box::new(
+            boxes1.add(Cube::new(
                 Vec3::new(x0, y0, z0),
                 Vec3::new(x1, y1, z1),
                 ground,
@@ -147,19 +147,19 @@ fn cornell_box() -> HittableList {
     world.add(XZRect::new(0., 555., 0., 555., 555., white));
     world.add(XYRect::new(0., 555., 0., 555., 555., white));
 
-    // world.add(Box::new(
+    // world.add(Cube::new(
     //     Vec3::new(130., 0., 65.),
     //     Vec3::new(295., 165., 230.),
     //     white,
     // ));
-    // world.add(Box::new(
+    // world.add(Cube::new(
     //     Vec3::new(265., 0., 295.),
     //     Vec3::new(430., 330., 460.),
     //     white,
     // ));
 
-    let box1 = Box::new(Vec3::new(0., 0., 0.), Vec3::new(165., 330., 165.), white);
-    let box2 = Box::new(Vec3::new(0., 0., 0.), Vec3::new(165., 165., 165.), white);
+    let box1 = Cube::new(Vec3::new(0., 0., 0.), Vec3::new(165., 330., 165.), white);
+    let box2 = Cube::new(Vec3::new(0., 0., 0.), Vec3::new(165., 165., 165.), white);
 
     // 先旋转再平移
     let rt1 = RotateY::new(box1, 15.); //旋转后的立方体 rt1
