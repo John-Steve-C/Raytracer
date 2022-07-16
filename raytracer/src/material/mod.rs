@@ -9,7 +9,7 @@ use crate::{
     hittable::HitRecord,
 };
 
-pub trait Material {
+pub trait Material: Send + Sync {
     //材料对光线的反射情况
     fn scatter(&self, r_in: Ray, rec: HitRecord) -> Option<ScatterRecord>;
     //材料发出的光的颜色，默认是黑色

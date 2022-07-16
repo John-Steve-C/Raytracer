@@ -18,7 +18,7 @@ pub struct HitRecord<'a> {
     pub t: f64,                //对应光线的 at(t)
     pub front_face: bool,      //方向是否为外侧
     pub mat: &'a dyn Material, //材料，变量类型是对包含 Material 结构体的引用
-    pub u: f64,                // 用来表示纹理
+    pub u: f64,                // 碰撞点对应在二维图上的坐标
     pub v: f64,
 }
 
@@ -42,7 +42,8 @@ impl<'a> HitRecord<'a> {
         self.v = theta / PI;
     }
 }
-pub trait Hittable {
+pub trait Hittable: Send + Sync // 加上后缀Send/Sync，用于多线程的传递
+{
     //特性，用于实现继承
     //代替c++中包裹record的类
     fn hit(&self, r: Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;

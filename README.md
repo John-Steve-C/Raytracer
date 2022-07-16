@@ -4,7 +4,7 @@
 
 ## 当前进度
 
-book2，Image22（只采用了 samples_per_pixel = 50，因为本地实在跑不动）
+book2，Image22（只采用了 samples_per_pixel = 200，因为本地实在跑不动）
 
 ![](https://s3.bmp.ovh/imgs/2022/07/16/4401691eed0907a6.jpg)
 
@@ -112,5 +112,10 @@ where
 
 ---
 
-- [ ] 多线程优化
-- [ ] 其他改进？
+- [x] 多线程优化，目前使用的是 16 进程
+
+    - book2_image21
+      - time：40+ min `->` 5 min 43 s，
+      - CPU 利用率：11% `->` 80%
+- [x] track 1 : 把 Arc 修改为 泛型
+- [ ] track 2

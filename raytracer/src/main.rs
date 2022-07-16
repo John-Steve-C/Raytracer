@@ -1,9 +1,15 @@
-use std::{fs::File, process::exit};
+use std::{
+    fs::File,
+    process::exit,
+    sync::{mpsc, Arc},
+    thread,
+    time::Instant,
+};
 
 use image::{ImageBuffer, RgbImage};
 
 use console::style;
-use indicatif::{ProgressBar, ProgressStyle};
+use indicatif::{HumanDuration, MultiProgress, ProgressBar, ProgressStyle};
 
 pub mod basic_component;
 pub mod hittable;
@@ -102,7 +108,7 @@ fn scene_book2() -> HittableList {
     ));
 
     // 地球贴图的球体
-    let emat = Lambertian::new(ImageTexture::new_from_file("earthmap.jpg"));
+    let emat = Lambertian::new(ImageTexture::new_from_file("import_pic/earthmap.jpg"));
     world.add(Sphere::new(Vec3::new(400., 200., 400.), 100., emat));
     let pertext = NoiseTexture::new(Perlin::new(), 0.1);
     world.add(Sphere::new(
@@ -191,7 +197,7 @@ fn simple_light() -> HittableList {
 
 fn earth() -> HittableList {
     let mut world: HittableList = Default::default();
-    let image = ImageTexture::new_from_file("earthmap.jpg");
+    let image = ImageTexture::new_from_file("import_pic/earthmap.jpg");
     let mat1 = Lambertian::new(image);
 
     world.add(Sphere::new(Vec3::new(0., 0., 0.), 2., mat1));
@@ -286,13 +292,14 @@ fn main() {
     print!("{}[2J", 27 as char); // Clear screen
     print!("{esc}[2J{esc}[1;1H", esc = 27 as char); // Set cursor position as 1,1
 
+    // ----------------------设定图像的内容-------------------------
     let aspect_ratio = 1.;
     let width = 800;
     let height = (width as f64 / aspect_ratio) as u32;
     let quality = 100; // From 0 to 100
     let path = "output/output.jpg";
 
-    let samples_per_pixel = 10000;
+    let samples_per_pixel = 50;
     // 每一个像素点由多少次光线来确定
     let max_depth = 50;
 
@@ -316,9 +323,8 @@ fn main() {
         1.,
     );
 
-    let world: HittableList = scene_book2();
-
     if false {
+        scene_book2();
         cornell_box();
         random_scene();
         two_spheres();
@@ -326,53 +332,133 @@ fn main() {
         simple_light();
     } //用来防止报错
 
+    //------------------------------输出图像的特定信息-----------------------------
     println!(
-        "Image size: {}\nJPEG quality: {}",
+        "Image size: {}\nJPEG quality: {}\nSamples_per_pixel: {}",
         style(width.to_string() + &"x".to_string() + &height.to_string()).yellow(),
         style(quality.to_string()).yellow(),
+        style(samples_per_pixel).yellow(),
     );
 
     // Create image data
     let mut img: RgbImage = ImageBuffer::new(width, height);
-    // Progress bar UI powered by library `indicatif`
-    // Get environment variable CI, which is true for GitHub Action
-    let progress = if option_env!("CI").unwrap_or_default() == "true" {
-        ProgressBar::hidden()
-    } else {
-        ProgressBar::new((height * width) as u64)
-    };
-    progress.set_style(ProgressStyle::default_bar()
-        .template("{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] [{pos}/{len}] ({eta})")
-        .progress_chars("#>-"));
 
-    // Generate image
-    for y in (0..height).rev() {
-        for x in 0..width {
-            let mut color = Vec3::new(0., 0., 0.);
-            for _s in 0..samples_per_pixel {
-                // 抗锯齿
-                let u = (x as f64 + random_double(0., 1.)) / (width - 1) as f64;
-                let v = (y as f64 + random_double(0., 1.)) / (height - 1) as f64;
+    //-------------------------多线程部分---------------------------
 
-                let r = cam.get_ray(u, v); //多次求通过该像素的光线
-                color += Ray::ray_color(r, background, &world, max_depth);
+    println!("Multi-threading!");
+    let begin_time = Instant::now();
+    let thread_number = 16; // 线程数
+
+    let section_line_number = height / thread_number; // 每个线程处理的行数
+    let mut thread_pool = Vec::<_>::new(); // 进程池
+    let mut output_pixel_color = Vec::new(); // 画出的像素颜色
+
+    let multi_progress = Arc::new(MultiProgress::new()); // 多个进度条
+    multi_progress.set_move_cursor(true);
+
+    for thread_id in 0..thread_number {
+        // 计算出行首与行末的编号
+        let line_begin = section_line_number * thread_id;
+        let mut line_end = line_begin + section_line_number;
+        if line_end > height || (thread_id == thread_number - 1 && line_end < height) {
+            // 不足的最后一行，自动补齐
+            line_end = height;
+        }
+
+        // 设定图片内容
+        let world: HittableList = scene_book2();
+
+        // 设置进度条
+        let mp = multi_progress.clone();
+        let progress_bar = mp.add(ProgressBar::new(((line_end - line_begin) * width) as u64));
+        progress_bar.set_style(ProgressStyle::default_bar()
+                                .template("{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] [{pos}/{len}] ({eta})")
+                                .progress_chars("#>-"));
+
+        //-------------------- 内部的线程 -----------------------------------------------------
+        let (tx, rx) = mpsc::channel(); //信道
+        thread_pool.push((
+            thread::spawn(move || {
+                progress_bar.set_position(0);
+
+                let channel_send = tx;
+                let mut section_pixel_color = Vec::new(); // 临时记录线程的计算结果
+
+                // 计算通过某一像素点的颜色
+                for y in line_begin..line_end {
+                    for x in 0..width {
+                        let mut color = Vec3::new(0., 0., 0.);
+                        for _s in 0..samples_per_pixel {
+                            // 抗锯齿
+                            let u = (x as f64 + random_double(0., 1.)) / (width - 1) as f64;
+                            let v = (y as f64 + random_double(0., 1.)) / (height - 1) as f64;
+
+                            let r = cam.get_ray(u, v); //多次求通过该像素的光线
+                            color += Ray::ray_color(r, background, &world, max_depth);
+                        }
+                        section_pixel_color.push(color); // 记录该线程计算出的颜色
+
+                        progress_bar.inc(1);
+                    }
+                }
+                channel_send.send(section_pixel_color).unwrap(); // 通过信道把结果向外传递
+                progress_bar.finish_with_message("Finished!");
+            }),
+            rx,
+        ));
+    }
+    // 等待所有进程结束，再执行主线程
+    multi_progress.join().unwrap();
+
+    let mut thread_finish_successfully = true;
+    let collecting_progress_bar = ProgressBar::new(thread_number as u64);
+    // 接收信息，修改进度条
+    for thread_id in 0..thread_number {
+        let thread = thread_pool.remove(0);
+        match thread.0.join() {
+            Ok(_) => {
+                let mut received = thread.1.recv().unwrap();
+                output_pixel_color.append(&mut received);
+                collecting_progress_bar.inc(1);
             }
-
-            //上色
-            let pixel_color = get_pixel_color(color, samples_per_pixel);
-            let pixel = img.get_pixel_mut(x, height - y - 1);
-            *pixel = image::Rgb(pixel_color);
-            progress.inc(1);
+            Err(_) => {
+                thread_finish_successfully = false;
+                println!(
+                    "Joining the {} thread failed!",
+                    style(thread_id.to_string()).red()
+                );
+            }
         }
     }
-    progress.finish();
+    if !thread_finish_successfully {
+        exit(1);
+    }
+    collecting_progress_bar.finish_and_clear();
+
+    //---------------------------利用计算结果给图像上色----------------------------------
+    let mut pixel_id = 0;
+    for y in 0..height {
+        for x in 0..width {
+            let pixel_color = get_pixel_color(output_pixel_color[pixel_id], samples_per_pixel);
+            let pixel = img.get_pixel_mut(x, height - y - 1);
+            *pixel = image::Rgb(pixel_color);
+
+            pixel_id += 1;
+        }
+    }
 
     // Output image to file
     println!("Ouput image as \"{}\"", style(path).yellow());
     let output_image = image::DynamicImage::ImageRgb8(img);
     let mut output_file = File::create(path).unwrap();
     match output_image.write_to(&mut output_file, image::ImageOutputFormat::Jpeg(quality)) {
-        Ok(_) => {}
+        Ok(_) => {
+            println!(
+                "Time used : {}",
+                style(HumanDuration(begin_time.elapsed())).yellow()
+            );
+            // 统计运行时间
+        }
         // Err(_) => panic!("Outputting image fails."),
         Err(_) => println!("{}", style("Outputting image fails.").red()),
     }
