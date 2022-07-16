@@ -131,7 +131,8 @@ fn cornell_box() -> HittableList {
     let red = Lambertian::new_from_color(Vec3::new(0.65, 0.05, 0.05));
     let white = Lambertian::new_from_color(Vec3::new(0.73, 0.73, 0.73));
     let green = Lambertian::new_from_color(Vec3::new(0.12, 0.45, 0.15));
-    let light = DiffuseLight::new_from_color(Vec3::new(15., 15., 15.));
+    let light = DiffuseLight::new_from_color(Vec3::new(7., 7., 7.));
+    // 用颜色来控制亮度？
 
     world.add(YZRect::new(0., 555., 0., 555., 555., green));
     world.add(YZRect::new(0., 555., 0., 555., 0., red));
@@ -291,7 +292,8 @@ fn main() {
     let quality = 100; // From 0 to 100
     let path = "output/output.jpg";
 
-    let samples_per_pixel = 200;
+    let samples_per_pixel = 10000;
+    // 每一个像素点由多少次光线来确定
     let max_depth = 50;
 
     let lookfrom = Vec3::new(478., 278., -600.);
@@ -300,6 +302,7 @@ fn main() {
     let aperture = 0.; // 光圈，用来控制虚化
     let dist_to_focus = 10.;
     let background = Vec3::new(0., 0., 0.);
+    // 黑色的背景
 
     let cam: Camera = Camera::new(
         lookfrom,

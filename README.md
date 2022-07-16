@@ -35,7 +35,7 @@ book2，Image22（只采用了 samples_per_pixel = 50，因为本地实在跑不
 - 球体 sphere
 - 和某些坐标轴垂直的长方形 aarect
 - 由 aarect 围成的长方体 box
-- `instance` 文件夹：对物体进行基本的变换，比如旋转 rotate，平移 translate，雾化 constant_mediun
+- `instance` 文件夹：对物体进行基本的变换，比如旋转 rotate，平移 translate，雾化 constant_mediun（等密度介质，光线经过时可能发生偏移/直接穿过，进入得越深，越可能发生反射）
 
 同时，在 mod.rs 中实现了 HitRecord、HittableList 类，以及 Hittable 这一特性
 
@@ -54,7 +54,9 @@ book2，Image22（只采用了 samples_per_pixel = 50，因为本地实在跑不
     如果内部没有其他固体杂质，那么可以认为全都是折射，观察到的图像是上下颠倒的（现实中少见）
 - 主动发光的物体 diffuse_light，他们具有反射和发光两种性质，可以充当光源
 
-> 实际上，本模型并没有对 **亮度** 这一参数做出有效的控制
+> 实际上，本模型并没有对 **亮度** 这一参数做出有效的控制。
+
+> 目前的方案是，`let light = DiffuseLight::new_from_color(Vec3::new(7., 7., 7.));` 。color 三元组的值越大，亮度就越高
 
 - 各向同性 isotropic，用来实现雾化效果
 
