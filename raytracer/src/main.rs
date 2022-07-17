@@ -10,6 +10,7 @@ use image::{ImageBuffer, RgbImage};
 
 use console::style;
 use indicatif::{HumanDuration, MultiProgress, ProgressBar, ProgressStyle};
+use rand::{prelude::StdRng, Rng, SeedableRng};
 
 pub mod basic_component;
 pub mod hittable;
@@ -22,8 +23,8 @@ use crate::{
     basic_component::{camera::Camera, ray::Ray, vec3::Vec3},
     hittable::{
         aarect::{XYRect, XZRect, YZRect},
-        instance::{constant_medium::ConstantMedium, rotate::RotateY, translate::Translate},
         cube::Cube,
+        instance::{constant_medium::ConstantMedium, rotate::RotateY, translate::Translate},
         sphere::{MovingSphere, Sphere},
         HittableList,
     },
@@ -46,6 +47,7 @@ fn scene_book2() -> HittableList {
     let ground = Lambertian::new_from_color(Vec3::new(0.48, 0.83, 0.53));
     // 生成凹凸的地面
     let boxes_per_side = 20;
+    let mut rng = StdRng::seed_from_u64(19260817); // 从特定的种子生成
     for i in 0..boxes_per_side {
         for j in 0..boxes_per_side {
             let w = 100.;
@@ -53,7 +55,8 @@ fn scene_book2() -> HittableList {
             let z0 = -1000. + j as f64 * w;
             let y0 = 0.;
             let x1 = x0 + w;
-            let y1 = random_double(1., 101.);
+            let y1 = rng.gen_range(1.0..101.0);
+            // 伪随机，保证每次画出的图形相同
             let z1 = z0 + w;
 
             boxes1.add(Cube::new(
@@ -120,7 +123,15 @@ fn scene_book2() -> HittableList {
     let white = Lambertian::new_from_color(Vec3::new(0.73, 0.73, 0.73));
     let ns = 1000; //小球个数
     for _j in 0..ns {
-        boxes2.add(Sphere::new(Vec3::random(0., 165.), 10., white));
+        boxes2.add(Sphere::new(
+            Vec3 {
+                x: rng.gen_range(0.0..165.0),
+                y: rng.gen_range(0.0..165.0),
+                z: rng.gen_range(0.0..165.0),
+            }, // 伪随机
+            10.,
+            white,
+        ));
     }
     // 由小球组成的立方体，旋转+平移
     world.add(Translate::new(
@@ -299,7 +310,7 @@ fn main() {
     let quality = 100; // From 0 to 100
     let path = "output/output.jpg";
 
-    let samples_per_pixel = 50;
+    let samples_per_pixel = 10000;
     // 每一个像素点由多少次光线来确定
     let max_depth = 50;
 
@@ -366,6 +377,7 @@ fn main() {
         }
 
         // 设定图片内容
+        // 要保证每次都能生成相同的图片，即部分伪随机
         let world: HittableList = scene_book2();
 
         // 设置进度条

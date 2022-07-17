@@ -4,9 +4,9 @@
 
 ## 当前进度
 
-book2，Image22（只采用了 samples_per_pixel = 200，因为本地实在跑不动）
+book2，Image22
 
-![](https://s3.bmp.ovh/imgs/2022/07/16/4401691eed0907a6.jpg)
+![](https://s3.bmp.ovh/imgs/2022/07/17/a4957402f5ca6dc6.jpg)
 
 ## 项目内容
 
