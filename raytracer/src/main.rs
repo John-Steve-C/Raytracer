@@ -11,6 +11,7 @@ use image::{ImageBuffer, RgbImage};
 
 use console::style;
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
+use optimization::pdf::MixturePDF;
 use rand::{prelude::StdRng, Rng, SeedableRng};
 
 pub mod basic_component;
@@ -44,7 +45,7 @@ use crate::{
     utility::{get_pixel_color, random_double},
 };
 
-pub fn ray_color<T : Hittable>(
+pub fn ray_color<T: Hittable>(
     r: Ray,
     background: Vec3,
     world: &HittableList,
@@ -67,10 +68,12 @@ pub fn ray_color<T : Hittable>(
 
         //考虑金属的反射
         if let Some(temp_scatter) = temp_rec.mat.scatter(r, temp_rec) {
-            // let p = CosinePDF::new(temp_rec.normal);
-            let light_pdf = HittablePDF::new(lights, temp_rec.p);
-            let scattered = Ray::new(temp_rec.p, light_pdf.generate(), r.tm);
-            let pdf = light_pdf.value(scattered.dir);
+            let p0 = HittablePDF::new(lights, temp_rec.p);
+            let p1 = CosinePDF::new(temp_rec.normal);
+            let mixed = MixturePDF::new(&p0, p1);
+
+            let scattered = Ray::new(temp_rec.p, mixed.generate(), r.tm);
+            let pdf = mixed.value(scattered.dir);
 
             // 如果有，就是二者叠加的颜色
             emitted
@@ -362,7 +365,7 @@ fn main() {
     let quality = 100; // From 0 to 100
     let path = "output/output.jpg";
 
-    let samples_per_pixel = 100;
+    let samples_per_pixel = 1000;
     // 每一个像素点由多少次光线来确定
     let max_depth = 50;
 
