@@ -1,9 +1,10 @@
 use std::{
+    // time::Instant,
+    f64::INFINITY,
     fs::File,
     process::exit,
     sync::{mpsc, Arc},
     thread,
-    // time::Instant,
 };
 
 use image::{ImageBuffer, RgbImage};
@@ -24,20 +25,71 @@ use crate::{
     hittable::{
         aarect::{XYRect, XZRect, YZRect},
         cube::Cube,
+        flipface::Flipface,
         instance::{constant_medium::ConstantMedium, rotate::RotateY, translate::Translate},
         sphere::{MovingSphere, Sphere},
-        HittableList,
+        Hittable, HittableList,
     },
     material::{
         dielectric::Dielectric, diffuse_light::DiffuseLight, lambertian::Lambertian, metal::Metal,
     },
-    optimization::bvh::BvhNode,
+    optimization::{
+        bvh::BvhNode,
+        pdf::{CosinePDF, HittablePDF, PDF},
+    },
     texture::{
         checker::CheckerTexture, image::ImageTexture, perlin::NoiseTexture, perlin::Perlin,
         solid::SolidColor,
     },
     utility::{get_pixel_color, random_double},
 };
+
+pub fn ray_color(
+    r: Ray,
+    background: Vec3,
+    world: &HittableList,
+    // lights: &HittableList,
+    depth: i32,
+) -> Vec3 {
+    // 递归终止条件
+    // 超出限制，光无法反射，变成黑色
+    if depth <= 0 {
+        return Vec3::new(0., 0., 0.);
+    }
+
+    let emitted: Vec3;
+    // 判断是否碰到物体
+    // t_min 修正为 0.01，因为光线并不是在 t=0 处才会击中物体
+    if let Some(temp_rec) = world.hit(r, 0.001, INFINITY) {
+        emitted = temp_rec
+            .mat
+            .emitted(r, temp_rec, temp_rec.u, temp_rec.v, temp_rec.p);
+
+        //考虑金属的反射
+        if let Some(temp_scatter) = temp_rec.mat.scatter(r, temp_rec) {
+            let p = CosinePDF::new(temp_rec.normal);
+            // let light_pdf = HittablePDF::new(lights, temp_rec.p);
+            let scattered = Ray::new(temp_rec.p, p.generate(), r.tm);
+            let pdf = p.value(scattered.dir);
+
+            // 如果有，就是二者叠加的颜色
+            emitted
+                + temp_scatter.attenuation
+                    * temp_rec.mat.scattering_pdf(r, temp_rec, scattered)
+                    * ray_color(scattered, background, world, depth - 1)
+                    / pdf
+        } else {
+            // 金属没有反射，直接发光
+            emitted
+        }
+    } else {
+        //没碰到物体，就返回背景的颜色
+        // let unit_dir = Vec3::unit_vector(r.dir);
+        // let t = 0.5 * (unit_dir.y + 1.);
+        // Vec3::new(1., 1., 1.) * (1. - t) + Vec3::new(0.5, 0.7, 1.) * t //渐变色
+        background
+    }
+}
 
 fn scene_book2() -> HittableList {
     let mut boxes1: HittableList = Default::default();
@@ -153,7 +205,10 @@ fn cornell_box() -> HittableList {
 
     world.add(YZRect::new(0., 555., 0., 555., 555., green));
     world.add(YZRect::new(0., 555., 0., 555., 0., red));
-    world.add(XZRect::new(213., 343., 227., 332., 554., light));
+    // world.add(XZRect::new(213., 343., 227., 332., 554., light));
+    world.add(Flipface::new(XZRect::new(
+        213., 343., 227., 332., 554., light,
+    )));
     world.add(XZRect::new(0., 555., 0., 555., 0., white));
     world.add(XZRect::new(0., 555., 0., 555., 555., white));
     world.add(XYRect::new(0., 555., 0., 555., 555., white));
@@ -175,11 +230,6 @@ fn cornell_box() -> HittableList {
     // 先旋转再平移
     let rt1 = RotateY::new(box1, 15.); //旋转后的立方体 rt1
     let tr1 = Translate::new(rt1, Vec3::new(265., 0., 295.)); //平移后的立方体 tr1
-    // world.add(ConstantMedium::new_from_color(
-    //     tr1,
-    //     0.01,
-    //     Vec3::new(0., 0., 0.),
-    // ));
     world.add(tr1);
     // 同理
     let rt2 = RotateY::new(box2, -18.);
@@ -312,7 +362,7 @@ fn main() {
     let quality = 100; // From 0 to 100
     let path = "output/output.jpg";
 
-    let samples_per_pixel = 500;
+    let samples_per_pixel = 100;
     // 每一个像素点由多少次光线来确定
     let max_depth = 50;
 
@@ -381,6 +431,9 @@ fn main() {
         // 设定图片内容
         // 要保证每次都能生成相同的图片，即部分伪随机
         let world: HittableList = cornell_box();
+        // let mut lights: HittableList = Default::default();
+        // let light = DiffuseLight::new_from_color(Vec3::new(15., 15., 15.));
+        // lights.add(XZRect::new(213., 343., 227., 332., 554., light));
 
         // 设置进度条
         let mp = multi_progress.clone();
@@ -408,7 +461,7 @@ fn main() {
                             let v = (y as f64 + random_double(0., 1.)) / (height - 1) as f64;
 
                             let r = cam.get_ray(u, v); //多次求通过该像素的光线
-                            color += Ray::ray_color(r, background, &world, max_depth);
+                            color += ray_color(r, background, &world, max_depth);
                         }
                         section_pixel_color.push(color); // 记录该线程计算出的颜色
 

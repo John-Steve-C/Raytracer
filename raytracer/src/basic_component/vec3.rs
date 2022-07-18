@@ -1,17 +1,20 @@
 use crate::utility::{min_f64, random_double};
-use std::{ops::{
-    //重载运算符
-    Add,
-    AddAssign, // + 和 +=
-    Div,
-    DivAssign,
-    Index,    //[]
-    IndexMut, //[]的赋值
-    Mul,
-    MulAssign,
-    Sub,
-    SubAssign,
-}, f64::consts::PI};
+use std::{
+    f64::consts::PI,
+    ops::{
+        //重载运算符
+        Add,
+        AddAssign, // + 和 +=
+        Div,
+        DivAssign,
+        Index,    //[]
+        IndexMut, //[]的赋值
+        Mul,
+        MulAssign,
+        Sub,
+        SubAssign,
+    },
+};
 
 #[derive(Copy, Clone, Default)] // 告诉编译器，这个类型要实现 copy/clone 的 traits
                                 // Default 表示有默认构造
@@ -103,7 +106,7 @@ impl Vec3 {
         }
     }
 
-    pub fn random_cosine_direction() -> Vec3{
+    pub fn random_cosine_direction() -> Vec3 {
         let r1 = random_double(0., 1.);
         let r2 = random_double(0., 1.);
         let z = (1. - r2).sqrt();

@@ -1,7 +1,7 @@
 use std::f64::consts::PI;
 
 use crate::{
-    basic_component::{ray::Ray, vec3::Vec3, onb::ONB},
+    basic_component::{onb::ONB, ray::Ray, vec3::Vec3},
     hittable::HitRecord,
     material::{Material, ScatterRecord},
     texture::{solid::SolidColor, Texture},

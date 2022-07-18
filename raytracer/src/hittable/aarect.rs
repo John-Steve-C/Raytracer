@@ -1,8 +1,11 @@
+use std::f64::INFINITY;
+
 use super::{HitRecord, Hittable};
 use crate::{
     basic_component::{ray::Ray, vec3::Vec3},
     material::Material,
     optimization::aabb::AABB,
+    utility::random_double,
 };
 
 pub struct XYRect<T>
@@ -111,6 +114,28 @@ impl<T: Material> Hittable for XZRect<T> {
         };
         rec.set_face_normal(r, outward_normal);
         Some(rec)
+    }
+
+    fn pdf_value(&self, o: Vec3, v: Vec3) -> f64 {
+        // ray 的 t 是否为 0？
+        if let Some(rec) = self.hit(Ray::new(o, v, 0.), 0.001, INFINITY) {
+            let area = (self.x1 - self.x0) * (self.z1 - self.z0);
+            let distance_squared = rec.t * rec.t * v.length_squared();
+            let cosine = (Vec3::dot(v, rec.normal) / v.length()).abs();
+
+            distance_squared / (cosine * area)
+        } else {
+            0.
+        }
+    }
+
+    fn random(&self, o: Vec3) -> Vec3 {
+        let random_point = Vec3::new(
+            random_double(self.x0, self.x1),
+            self.k,
+            random_double(self.z0, self.z1),
+        );
+        random_point - o
     }
 }
 

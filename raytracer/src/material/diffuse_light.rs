@@ -1,6 +1,6 @@
 use crate::{
-    basic_component::vec3::Vec3,
-    // hittable::HitRecord,
+    basic_component::{ray::Ray, vec3::Vec3},
+    hittable::HitRecord,
     material::Material,
     texture::{solid::SolidColor, Texture},
 };
@@ -21,8 +21,12 @@ impl<T: Texture> Material for DiffuseLight<T> {
     //     None
     // }
     // 没有特殊的scatter，会自动按照 Material 中的默认函数实现
-    fn emitted(&self, u: f64, v: f64, p: Vec3) -> Vec3 {
-        self.emit.get_color_value(u, v, p)
+    fn emitted(&self, _r_in: Ray, rec: HitRecord, u: f64, v: f64, p: Vec3) -> Vec3 {
+        if rec.front_face {
+            self.emit.get_color_value(u, v, p)
+        } else {
+            Vec3::new(0., 0., 0.)
+        }
     }
 }
 

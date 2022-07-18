@@ -1,5 +1,6 @@
 pub mod aarect;
 pub mod cube;
+pub mod flipface;
 pub mod instance;
 pub mod sphere;
 
@@ -20,7 +21,7 @@ pub struct HitRecord<'a> {
     pub mat: &'a dyn Material, //材料，变量类型是对包含 Material 结构体的引用
     // 采用 dyn，因为 ray_color 中会有很多次碰撞
     // 如果不用引用/指针，改成泛型，就会多次生成变量，浪费时间
-    pub u: f64,                // 碰撞点对应在二维图上的坐标
+    pub u: f64, // 碰撞点对应在二维图上的坐标
     pub v: f64,
 }
 
@@ -57,13 +58,22 @@ pub trait Hittable: Send + Sync // 加上后缀Send/Sync，用于多线程的传
         None
     }
     // AABB 优化，判断光线是否撞到 大的 box
+
+    // PDF
+    fn pdf_value(&self, _o: Vec3, _v: Vec3) -> f64 {
+        0.
+    }
+
+    fn random(&self, _o: Vec3) -> Vec3 {
+        Vec3::new(1., 0., 0.)
+    }
 }
 
 //------------------------------------
 
 #[derive(Default)]
 pub struct HittableList {
-    pub objects: Vec<Box<dyn Hittable>>, //智能指针 + 特性
+    pub objects: Vec<Box<dyn Hittable>>, //智能指针 + dyn
 }
 
 impl HittableList {

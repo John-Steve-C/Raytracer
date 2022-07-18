@@ -15,7 +15,7 @@ pub trait Material: Send + Sync {
         None
     }
     //材料发出的光的颜色，默认是黑色
-    fn emitted(&self, _u: f64, _v: f64, _p: Vec3) -> Vec3 {
+    fn emitted(&self, _r_in: Ray, _rec: HitRecord, _u: f64, _v: f64, _p: Vec3) -> Vec3 {
         Vec3::new(0., 0., 0.)
     }
     // pdf 优化，默认返回 0
