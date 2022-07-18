@@ -44,11 +44,11 @@ use crate::{
     utility::{get_pixel_color, random_double},
 };
 
-pub fn ray_color(
+pub fn ray_color<T : Hittable>(
     r: Ray,
     background: Vec3,
     world: &HittableList,
-    // lights: &HittableList,
+    lights: &T,
     depth: i32,
 ) -> Vec3 {
     // 递归终止条件
@@ -67,16 +67,16 @@ pub fn ray_color(
 
         //考虑金属的反射
         if let Some(temp_scatter) = temp_rec.mat.scatter(r, temp_rec) {
-            let p = CosinePDF::new(temp_rec.normal);
-            // let light_pdf = HittablePDF::new(lights, temp_rec.p);
-            let scattered = Ray::new(temp_rec.p, p.generate(), r.tm);
-            let pdf = p.value(scattered.dir);
+            // let p = CosinePDF::new(temp_rec.normal);
+            let light_pdf = HittablePDF::new(lights, temp_rec.p);
+            let scattered = Ray::new(temp_rec.p, light_pdf.generate(), r.tm);
+            let pdf = light_pdf.value(scattered.dir);
 
             // 如果有，就是二者叠加的颜色
             emitted
                 + temp_scatter.attenuation
                     * temp_rec.mat.scattering_pdf(r, temp_rec, scattered)
-                    * ray_color(scattered, background, world, depth - 1)
+                    * ray_color(scattered, background, world, lights, depth - 1)
                     / pdf
         } else {
             // 金属没有反射，直接发光
@@ -432,8 +432,8 @@ fn main() {
         // 要保证每次都能生成相同的图片，即部分伪随机
         let world: HittableList = cornell_box();
         // let mut lights: HittableList = Default::default();
-        // let light = DiffuseLight::new_from_color(Vec3::new(15., 15., 15.));
-        // lights.add(XZRect::new(213., 343., 227., 332., 554., light));
+        let light = DiffuseLight::new_from_color(Vec3::new(15., 15., 15.));
+        let lights = XZRect::new(213., 343., 227., 332., 554., light);
 
         // 设置进度条
         let mp = multi_progress.clone();
@@ -461,7 +461,7 @@ fn main() {
                             let v = (y as f64 + random_double(0., 1.)) / (height - 1) as f64;
 
                             let r = cam.get_ray(u, v); //多次求通过该像素的光线
-                            color += ray_color(r, background, &world, max_depth);
+                            color += ray_color(r, background, &world, &lights, max_depth);
                         }
                         section_pixel_color.push(color); // 记录该线程计算出的颜色
 
