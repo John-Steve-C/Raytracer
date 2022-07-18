@@ -3,13 +3,13 @@ use std::{
     process::exit,
     sync::{mpsc, Arc},
     thread,
-    time::Instant,
+    // time::Instant,
 };
 
 use image::{ImageBuffer, RgbImage};
 
 use console::style;
-use indicatif::{HumanDuration, MultiProgress, ProgressBar, ProgressStyle};
+use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 use rand::{prelude::StdRng, Rng, SeedableRng};
 
 pub mod basic_component;
@@ -148,12 +148,12 @@ fn cornell_box() -> HittableList {
     let red = Lambertian::new_from_color(Vec3::new(0.65, 0.05, 0.05));
     let white = Lambertian::new_from_color(Vec3::new(0.73, 0.73, 0.73));
     let green = Lambertian::new_from_color(Vec3::new(0.12, 0.45, 0.15));
-    let light = DiffuseLight::new_from_color(Vec3::new(7., 7., 7.));
+    let light = DiffuseLight::new_from_color(Vec3::new(15., 15., 15.));
     // 用颜色来控制亮度？
 
     world.add(YZRect::new(0., 555., 0., 555., 555., green));
     world.add(YZRect::new(0., 555., 0., 555., 0., red));
-    world.add(XZRect::new(113., 443., 127., 432., 554., light));
+    world.add(XZRect::new(213., 343., 227., 332., 554., light));
     world.add(XZRect::new(0., 555., 0., 555., 0., white));
     world.add(XZRect::new(0., 555., 0., 555., 555., white));
     world.add(XYRect::new(0., 555., 0., 555., 555., white));
@@ -175,19 +175,21 @@ fn cornell_box() -> HittableList {
     // 先旋转再平移
     let rt1 = RotateY::new(box1, 15.); //旋转后的立方体 rt1
     let tr1 = Translate::new(rt1, Vec3::new(265., 0., 295.)); //平移后的立方体 tr1
-    world.add(ConstantMedium::new_from_color(
-        tr1,
-        0.01,
-        Vec3::new(0., 0., 0.),
-    ));
+    // world.add(ConstantMedium::new_from_color(
+    //     tr1,
+    //     0.01,
+    //     Vec3::new(0., 0., 0.),
+    // ));
+    world.add(tr1);
     // 同理
     let rt2 = RotateY::new(box2, -18.);
     let tr2 = Translate::new(rt2, Vec3::new(130., 0., 65.));
-    world.add(ConstantMedium::new_from_color(
-        tr2,
-        0.01,
-        Vec3::new(1., 1., 1.),
-    ));
+    // world.add(ConstantMedium::new_from_color(
+    //     tr2,
+    //     0.01,
+    //     Vec3::new(1., 1., 1.),
+    // ));
+    world.add(tr2);
 
     world
 }
@@ -305,16 +307,16 @@ fn main() {
 
     // ----------------------设定图像的内容-------------------------
     let aspect_ratio = 1.;
-    let width = 800;
+    let width = 600;
     let height = (width as f64 / aspect_ratio) as u32;
     let quality = 100; // From 0 to 100
     let path = "output/output.jpg";
 
-    let samples_per_pixel = 10000;
+    let samples_per_pixel = 500;
     // 每一个像素点由多少次光线来确定
     let max_depth = 50;
 
-    let lookfrom = Vec3::new(478., 278., -600.);
+    let lookfrom = Vec3::new(278., 278., -800.);
     let lookat = Vec3::new(278., 278., 0.);
     let vup = Vec3::new(0., 1., 0.);
     let aperture = 0.; // 光圈，用来控制虚化
@@ -357,7 +359,7 @@ fn main() {
     //-------------------------多线程部分---------------------------
 
     println!("Multi-threading!");
-    let begin_time = Instant::now();
+    // let begin_time = Instant::now();
     let thread_number = 16; // 线程数
 
     let section_line_number = height / thread_number; // 每个线程处理的行数
@@ -378,7 +380,7 @@ fn main() {
 
         // 设定图片内容
         // 要保证每次都能生成相同的图片，即部分伪随机
-        let world: HittableList = scene_book2();
+        let world: HittableList = cornell_box();
 
         // 设置进度条
         let mp = multi_progress.clone();
@@ -465,10 +467,10 @@ fn main() {
     let mut output_file = File::create(path).unwrap();
     match output_image.write_to(&mut output_file, image::ImageOutputFormat::Jpeg(quality)) {
         Ok(_) => {
-            println!(
-                "Time used : {}",
-                style(HumanDuration(begin_time.elapsed())).yellow()
-            );
+            // println!(
+            //     "Time used : {}",
+            //     style(HumanDuration(begin_time.elapsed())).yellow()
+            // );
             // 统计运行时间
         }
         // Err(_) => panic!("Outputting image fails."),

@@ -11,13 +11,15 @@ use crate::{
     optimization::aabb::AABB,
 };
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct HitRecord<'a> {
     pub p: Vec3,               //碰撞点
     pub normal: Vec3,          //法向量
     pub t: f64,                //对应光线的 at(t)
     pub front_face: bool,      //方向是否为外侧
     pub mat: &'a dyn Material, //材料，变量类型是对包含 Material 结构体的引用
+    // 采用 dyn，因为 ray_color 中会有很多次碰撞
+    // 如果不用引用/指针，改成泛型，就会多次生成变量，浪费时间
     pub u: f64,                // 碰撞点对应在二维图上的坐标
     pub v: f64,
 }
@@ -46,10 +48,14 @@ pub trait Hittable: Send + Sync // 加上后缀Send/Sync，用于多线程的传
 {
     //特性，用于实现继承
     //代替c++中包裹record的类
-    fn hit(&self, r: Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
+    fn hit(&self, _r: Ray, _t_min: f64, _t_max: f64) -> Option<HitRecord> {
+        None
+    }
     //判断光线在 [t_min, t_max] 内是否碰到物体
     //优化，用 Option 是否为 None 来判断碰撞与否，同时包括返回值
-    fn bounding_box(&self, _time0: f64, _time1: f64) -> Option<AABB>;
+    fn bounding_box(&self, _time0: f64, _time1: f64) -> Option<AABB> {
+        None
+    }
     // AABB 优化，判断光线是否撞到 大的 box
 }
 

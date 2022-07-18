@@ -1,5 +1,7 @@
+use std::f64::consts::PI;
+
 use crate::{
-    basic_component::{ray::Ray, vec3::Vec3},
+    basic_component::{ray::Ray, vec3::Vec3, onb::ONB},
     hittable::HitRecord,
     material::{Material, ScatterRecord},
     texture::{solid::SolidColor, Texture},
@@ -16,17 +18,31 @@ where
 
 impl<T: Texture> Material for Lambertian<T> {
     fn scatter(&self, _r_in: Ray, rec: HitRecord) -> Option<ScatterRecord> {
-        let mut scatter_dir = rec.normal + Vec3::random_unit_vector();
+        // let mut scatter_dir = rec.normal + Vec3::random_unit_vector();
 
         //防止 scatter_dir 相加后恰好为 0 向量
-        if scatter_dir.near_zero() {
-            scatter_dir = rec.normal;
-        }
-        //过小时，修正
+        // if scatter_dir.near_zero() {
+        //     scatter_dir = rec.normal;
+        // }
+        // 过小时，修正
+        // 加上 pdf，选择 importance sampling
+
+        let uvw = ONB::build_from_w(rec.normal);
+        let dir = uvw.local_from_vec(Vec3::random_cosine_direction());
         Some(ScatterRecord {
-            scattered: Ray::new(rec.p, scatter_dir, _r_in.tm),
+            scattered: Ray::new(rec.p, Vec3::unit_vector(dir), _r_in.tm),
             attenuation: self.albedo.get_color_value(rec.u, rec.v, rec.p),
+            pdf: Vec3::dot(uvw.w(), Vec3::unit_vector(dir)) / PI,
         })
+    }
+
+    fn scattering_pdf(&self, _r_in: Ray, rec: HitRecord, scattered: Ray) -> f64 {
+        let cosine = Vec3::dot(rec.normal, Vec3::unit_vector(scattered.dir));
+        if cosine < 0. {
+            0.
+        } else {
+            cosine / PI
+        }
     }
 }
 

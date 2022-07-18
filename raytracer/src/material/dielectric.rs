@@ -46,6 +46,7 @@ impl Material for Dielectric {
         Some(ScatterRecord {
             scattered: Ray::new(rec.p, _dir, r_in.tm),
             attenuation: Vec3::new(1., 1., 1.),
+            pdf: 1.,
         })
     }
 }

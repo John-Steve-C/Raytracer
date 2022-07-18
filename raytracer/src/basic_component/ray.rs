@@ -1,6 +1,6 @@
 use std::f64::INFINITY;
 
-use crate::{basic_component::vec3::Vec3, hittable::Hittable};
+use crate::{basic_component::vec3::Vec3, hittable::Hittable, utility::random_double};
 
 #[derive(Copy, Clone, Default)]
 pub struct Ray {
@@ -34,10 +34,31 @@ impl Ray {
 
             //考虑金属的反射
             if let Some(temp_scatter) = temp_rec.mat.scatter(r, temp_rec) {
+                let on_light = Vec3::new(random_double(213., 343.), 554., random_double(227., 332.));
+                let mut to_light = on_light - temp_rec.p;
+                let distance_squared = to_light.length_squared();
+                to_light = Vec3::unit_vector(to_light);
+
+                if Vec3::dot(to_light, temp_rec.normal) < 0. {
+                    return emitted;
+                }
+
+                let light_area = (343 - 213) * (332 - 227);
+                let light_cosine = to_light.y.abs();
+                if light_cosine < 0.000001 {
+                    return emitted;
+                }
+                let pdf = distance_squared / (light_cosine * light_area as f64);
+                let scattered = Ray::new(temp_rec.p, to_light, r.tm);
+
                 // 如果有，就是二者叠加的颜色
                 emitted
-                    + Ray::ray_color(temp_scatter.scattered, background, world, depth - 1)
-                        * temp_scatter.attenuation
+                    + temp_scatter.attenuation
+                        * temp_rec
+                            .mat
+                            .scattering_pdf(r, temp_rec, scattered)
+                        * Ray::ray_color(scattered, background, world, depth - 1)
+                        / pdf
             } else {
                 // 金属没有反射，直接发光
                 emitted

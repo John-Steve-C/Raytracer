@@ -1,5 +1,5 @@
 use crate::utility::{min_f64, random_double};
-use std::ops::{
+use std::{ops::{
     //重载运算符
     Add,
     AddAssign, // + 和 +=
@@ -11,7 +11,7 @@ use std::ops::{
     MulAssign,
     Sub,
     SubAssign,
-};
+}, f64::consts::PI};
 
 #[derive(Copy, Clone, Default)] // 告诉编译器，这个类型要实现 copy/clone 的 traits
                                 // Default 表示有默认构造
@@ -101,6 +101,16 @@ impl Vec3 {
         } else {
             Vec3::new(0., 0., 0.) - in_unit_sphere
         }
+    }
+
+    pub fn random_cosine_direction() -> Vec3{
+        let r1 = random_double(0., 1.);
+        let r2 = random_double(0., 1.);
+        let z = (1. - r2).sqrt();
+        let phi = 2. * PI * r1;
+        let x = phi.cos() * r2.sqrt();
+        let y = phi.sin() * r2.sqrt();
+        Vec3::new(x, y, z)
     }
 
     pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {

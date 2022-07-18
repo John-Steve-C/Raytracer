@@ -24,6 +24,7 @@ impl Material for Metal {
             Some(ScatterRecord {
                 scattered: _scattered,
                 attenuation: _attenuation,
+                pdf: 1.,
             })
         } else {
             None

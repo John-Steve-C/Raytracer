@@ -1,11 +1,11 @@
 use crate::{
-    basic_component::{ray::Ray, vec3::Vec3},
-    hittable::HitRecord,
+    basic_component::vec3::Vec3,
+    // hittable::HitRecord,
     material::Material,
     texture::{solid::SolidColor, Texture},
 };
 
-use super::ScatterRecord;
+// use super::ScatterRecord;
 
 #[derive(Clone, Copy)]
 pub struct DiffuseLight<T>
@@ -17,9 +17,10 @@ where
 }
 
 impl<T: Texture> Material for DiffuseLight<T> {
-    fn scatter(&self, _r_in: Ray, _rec: HitRecord) -> Option<ScatterRecord> {
-        None
-    }
+    // fn scatter(&self, _r_in: Ray, _rec: HitRecord) -> Option<ScatterRecord> {
+    //     None
+    // }
+    // 没有特殊的scatter，会自动按照 Material 中的默认函数实现
     fn emitted(&self, u: f64, v: f64, p: Vec3) -> Vec3 {
         self.emit.get_color_value(u, v, p)
     }
