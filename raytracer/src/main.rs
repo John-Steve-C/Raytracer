@@ -36,7 +36,7 @@ use crate::{
     },
     optimization::{
         bvh::BvhNode,
-        pdf::{CosinePDF, HittablePDF, PDF},
+        pdf::{HittablePDF, PDF},
     },
     texture::{
         checker::CheckerTexture, image::ImageTexture, perlin::NoiseTexture, perlin::Perlin,
@@ -45,11 +45,11 @@ use crate::{
     utility::{get_pixel_color, random_double},
 };
 
-pub fn ray_color<T: Hittable>(
+pub fn ray_color(
     r: Ray,
     background: Vec3,
     world: &HittableList,
-    lights: &T,
+    lights: &HittableList,
     depth: i32,
 ) -> Vec3 {
     // 递归终止条件
@@ -61,26 +61,29 @@ pub fn ray_color<T: Hittable>(
     let emitted: Vec3;
     // 判断是否碰到物体
     // t_min 修正为 0.01，因为光线并不是在 t=0 处才会击中物体
-    if let Some(temp_rec) = world.hit(r, 0.001, INFINITY) {
-        emitted = temp_rec
-            .mat
-            .emitted(r, temp_rec, temp_rec.u, temp_rec.v, temp_rec.p);
+    if let Some(rec) = world.hit(r, 0.001, INFINITY) {
+        emitted = rec.mat.emitted(r, rec, rec.u, rec.v, rec.p);
 
         //考虑金属的反射
-        if let Some(temp_scatter) = temp_rec.mat.scatter(r, temp_rec) {
-            let p0 = HittablePDF::new(lights, temp_rec.p);
-            let p1 = CosinePDF::new(temp_rec.normal);
+        if let Some(srec) = rec.mat.scatter(r, rec) {
+            if srec.is_specular {
+                return srec.attenuation
+                    * ray_color(srec.scattered, background, world, lights, depth - 1);
+            }
+
+            let p0 = HittablePDF::new(lights, rec.p);
+            let p1 = srec.cos_pdf;
             let mixed = MixturePDF::new(&p0, p1);
 
-            let scattered = Ray::new(temp_rec.p, mixed.generate(), r.tm);
-            let pdf = mixed.value(scattered.dir);
+            let scattered = Ray::new(rec.p, mixed.generate(), r.tm);
+            let pdf_val = mixed.value(scattered.dir);
 
             // 如果有，就是二者叠加的颜色
             emitted
-                + temp_scatter.attenuation
-                    * temp_rec.mat.scattering_pdf(r, temp_rec, scattered)
+                + srec.attenuation
+                    * rec.mat.scattering_pdf(r, rec, scattered)
                     * ray_color(scattered, background, world, lights, depth - 1)
-                    / pdf
+                    / pdf_val
         } else {
             // 金属没有反射，直接发光
             emitted
@@ -92,6 +95,16 @@ pub fn ray_color<T: Hittable>(
         // Vec3::new(1., 1., 1.) * (1. - t) + Vec3::new(0.5, 0.7, 1.) * t //渐变色
         background
     }
+}
+
+fn add_lights() ->HittableList {
+    let mut lights : HittableList = Default::default();
+
+    let light = DiffuseLight::new_from_color(Vec3::new(15., 15., 15.));
+    lights.add(XZRect::new(213., 343., 227., 332., 554., light));
+    lights.add(Sphere::new(Vec3::new(190., 90., 190.), 90., light));
+
+    lights
 }
 
 fn scene_book2() -> HittableList {
@@ -216,33 +229,20 @@ fn cornell_box() -> HittableList {
     world.add(XZRect::new(0., 555., 0., 555., 555., white));
     world.add(XYRect::new(0., 555., 0., 555., 555., white));
 
-    // world.add(Cube::new(
-    //     Vec3::new(130., 0., 65.),
-    //     Vec3::new(295., 165., 230.),
-    //     white,
-    // ));
-    // world.add(Cube::new(
-    //     Vec3::new(265., 0., 295.),
-    //     Vec3::new(430., 330., 460.),
-    //     white,
-    // ));
-
+    // let aluminum = Metal::new(Vec3::new(0.8, 0.85, 0.88), 0.);
     let box1 = Cube::new(Vec3::new(0., 0., 0.), Vec3::new(165., 330., 165.), white);
-    let box2 = Cube::new(Vec3::new(0., 0., 0.), Vec3::new(165., 165., 165.), white);
-
     // 先旋转再平移
     let rt1 = RotateY::new(box1, 15.); //旋转后的立方体 rt1
     let tr1 = Translate::new(rt1, Vec3::new(265., 0., 295.)); //平移后的立方体 tr1
     world.add(tr1);
     // 同理
-    let rt2 = RotateY::new(box2, -18.);
-    let tr2 = Translate::new(rt2, Vec3::new(130., 0., 65.));
-    // world.add(ConstantMedium::new_from_color(
-    //     tr2,
-    //     0.01,
-    //     Vec3::new(1., 1., 1.),
-    // ));
-    world.add(tr2);
+    // let box2 = Cube::new(Vec3::new(0., 0., 0.), Vec3::new(165., 165., 165.), white);
+    // let rt2 = RotateY::new(box2, -18.);
+    // let tr2 = Translate::new(rt2, Vec3::new(130., 0., 65.));
+    // world.add(tr2);
+
+    let glass = Dielectric::new(1.5);
+    world.add(Sphere::new(Vec3::new(190., 90., 190.), 90., glass));
 
     world
 }
@@ -434,9 +434,7 @@ fn main() {
         // 设定图片内容
         // 要保证每次都能生成相同的图片，即部分伪随机
         let world: HittableList = cornell_box();
-        // let mut lights: HittableList = Default::default();
-        let light = DiffuseLight::new_from_color(Vec3::new(15., 15., 15.));
-        let lights = XZRect::new(213., 343., 227., 332., 554., light);
+        let lights: HittableList = add_lights();
 
         // 设置进度条
         let mp = multi_progress.clone();

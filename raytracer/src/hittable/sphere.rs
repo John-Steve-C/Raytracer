@@ -1,8 +1,10 @@
+use std::f64::{INFINITY, consts::PI};
+
 use crate::{
-    basic_component::{ray::Ray, vec3::Vec3},
+    basic_component::{ray::Ray, vec3::Vec3, onb::ONB},
     hittable::{HitRecord, Hittable},
     material::Material,
-    optimization::aabb::AABB,
+    optimization::aabb::AABB, utility::random_to_sphere,
 };
 
 #[derive(Clone, Copy)]
@@ -59,6 +61,25 @@ impl<T: Material> Hittable for Sphere<T> {
             minimum: self.center - Vec3::new(self.radius, self.radius, self.radius),
             maximum: self.center + Vec3::new(self.radius, self.radius, self.radius),
         })
+    }
+
+    fn pdf_value(&self, o : Vec3, v : Vec3) -> f64 {
+        if let Some(_rec) = self.hit( Ray::new(o, v, 0.), 0.001, INFINITY) {
+            let cos_theta_max = (1. - self.radius * self.radius / (self.center - o).length_squared()).sqrt();
+            let solid_angle = 2. * PI * (1. - cos_theta_max);
+
+            1. / solid_angle
+        } else {
+            0.
+        }
+    }
+
+    fn random(&self, o : Vec3) -> Vec3 {
+        let dir = self.center - o;
+        let distance_squared = dir.length_squared();
+        let uvw = ONB::build_from_w(dir);
+        
+        uvw.local_from_vec(random_to_sphere(self.radius, distance_squared))
     }
 }
 

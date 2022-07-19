@@ -9,7 +9,7 @@ use std::f64::consts::PI;
 use crate::{
     basic_component::{ray::Ray, vec3::Vec3},
     material::Material,
-    optimization::aabb::AABB,
+    optimization::aabb::AABB, utility::random_int,
 };
 
 #[derive(Clone, Copy)]
@@ -131,5 +131,23 @@ impl Hittable for HittableList {
         }
 
         Some(output_box)
+    }
+
+    fn pdf_value(&self, o: Vec3, v: Vec3) -> f64 {
+        let weight = 1. / self.objects.len() as f64;
+        let mut sum = 0.;
+
+        for t in &self.objects {
+            sum += weight * t.pdf_value(o, v);
+        }
+
+        sum
+    }
+
+    fn random(&self, o: Vec3) -> Vec3 {
+        let int_size = self.objects.len() as i32;
+        let t = random_int(0, int_size - 1) as usize;
+        
+        self.objects[t].random(o)
     }
 }

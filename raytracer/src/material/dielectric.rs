@@ -2,6 +2,7 @@ use crate::{
     basic_component::{ray::Ray, vec3::Vec3},
     hittable::HitRecord,
     material::{Material, ScatterRecord},
+    optimization::pdf::CosinePDF,
     utility::{min_f64, random_double},
 };
 
@@ -46,7 +47,9 @@ impl Material for Dielectric {
         Some(ScatterRecord {
             scattered: Ray::new(rec.p, _dir, r_in.tm),
             attenuation: Vec3::new(1., 1., 1.),
-            pdf: 1.,
+            cos_pdf: CosinePDF::empty(),
+            pdf_type: 0,
+            is_specular: true,
         })
     }
 }

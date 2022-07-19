@@ -4,6 +4,7 @@ use crate::{
     basic_component::{onb::ONB, ray::Ray, vec3::Vec3},
     hittable::HitRecord,
     material::{Material, ScatterRecord},
+    optimization::pdf::CosinePDF,
     texture::{solid::SolidColor, Texture},
 };
 
@@ -32,7 +33,9 @@ impl<T: Texture> Material for Lambertian<T> {
         Some(ScatterRecord {
             scattered: Ray::new(rec.p, Vec3::unit_vector(dir), _r_in.tm),
             attenuation: self.albedo.get_color_value(rec.u, rec.v, rec.p),
-            pdf: Vec3::dot(uvw.w(), Vec3::unit_vector(dir)) / PI,
+            cos_pdf: CosinePDF::new(rec.normal),
+            pdf_type: 1,
+            is_specular: false,
         })
     }
 

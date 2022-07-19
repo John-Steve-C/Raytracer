@@ -43,6 +43,10 @@ impl CosinePDF {
             uvw: ONB::build_from_w(w),
         }
     }
+
+    pub fn empty() -> Self {
+        CosinePDF::new(Vec3::new(0., 0., 0.))
+    }
 }
 
 //------------------------------------------------------------------------

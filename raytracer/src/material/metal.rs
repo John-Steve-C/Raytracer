@@ -2,6 +2,7 @@ use crate::{
     basic_component::{ray::Ray, vec3::Vec3},
     hittable::HitRecord,
     material::{Material, ScatterRecord},
+    optimization::pdf::CosinePDF,
 };
 
 #[derive(Clone, Copy)]
@@ -24,7 +25,9 @@ impl Material for Metal {
             Some(ScatterRecord {
                 scattered: _scattered,
                 attenuation: _attenuation,
-                pdf: 1.,
+                cos_pdf: CosinePDF::empty(),
+                pdf_type: 0,
+                is_specular: true,
             })
         } else {
             None

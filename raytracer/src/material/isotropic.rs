@@ -2,6 +2,7 @@ use crate::{
     basic_component::{ray::Ray, vec3::Vec3},
     hittable::HitRecord,
     material::{Material, ScatterRecord},
+    optimization::pdf::CosinePDF,
     texture::{solid::SolidColor, Texture},
 };
 
@@ -19,7 +20,9 @@ impl<T: Texture> Material for Isotropic<T> {
         Some(ScatterRecord {
             scattered: Ray::new(rec.p, Vec3::random_vec_in_unit_sphere(), r_in.tm),
             attenuation: self.albedo.get_color_value(rec.u, rec.v, rec.p),
-            pdf: 1.,
+            cos_pdf: CosinePDF::empty(),
+            pdf_type: 0,
+            is_specular: true,
         })
     }
 }

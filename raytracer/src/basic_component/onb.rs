@@ -1,6 +1,7 @@
 use super::vec3::Vec3;
 use std::ops::{Index, IndexMut};
 
+// #[derive(Default, Clone, Copy)]
 pub struct ONB {
     // 正交基
     pub axis: [Vec3; 3],

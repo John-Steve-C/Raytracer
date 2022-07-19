@@ -8,7 +8,7 @@ use crate::{
 
 pub struct BvhNode {
     // 用来二分查找，作为查找树的结点
-    pub r#box: AABB,                     // box 是原有的关键字
+    pub cube: AABB,                      // box 是原有的关键字
     pub left: Option<Box<dyn Hittable>>, //为了实现空指针，必须用 option
     pub right: Option<Box<dyn Hittable>>,
 }
@@ -20,7 +20,7 @@ impl Hittable for BvhNode {
         t_min: f64,
         t_max: f64,
     ) -> Option<crate::hittable::HitRecord> {
-        if !self.r#box.hit(r, t_min, t_max) {
+        if !self.cube.hit(r, t_min, t_max) {
             return None;
         }
 
@@ -43,7 +43,7 @@ impl Hittable for BvhNode {
     }
 
     fn bounding_box(&self, _time0: f64, _time1: f64) -> Option<AABB> {
-        Some(self.r#box)
+        Some(self.cube)
     }
 }
 
@@ -94,13 +94,13 @@ impl BvhNode {
         if _right.is_some() {
             let box_right = _right.as_ref().unwrap().bounding_box(time0, time1).unwrap();
             BvhNode {
-                r#box: AABB::surrounding_box(box_left, box_right),
+                cube: AABB::surrounding_box(box_left, box_right),
                 left: _left,
                 right: _right,
             }
         } else {
             BvhNode {
-                r#box: box_left,
+                cube: box_left,
                 left: _left,
                 right: _right,
             }

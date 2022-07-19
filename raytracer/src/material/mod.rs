@@ -7,6 +7,7 @@ pub mod metal;
 use crate::{
     basic_component::{ray::Ray, vec3::Vec3},
     hittable::HitRecord,
+    optimization::pdf::CosinePDF,
 };
 
 pub trait Material: Send + Sync {
@@ -28,15 +29,18 @@ pub struct ScatterRecord {
     //保存反射的结果
     pub attenuation: Vec3, //衰减系数
     pub scattered: Ray,    //反射光
-    pub pdf: f64,
+    pub cos_pdf: CosinePDF,
+    pub pdf_type: i32,
+    pub is_specular: bool, // 判断是镜面反射/漫反射
 }
 
-impl ScatterRecord {
-    pub fn new(_scat: Ray, _att: Vec3, _pdf: f64) -> Self {
-        Self {
-            attenuation: _att,
-            scattered: _scat,
-            pdf: _pdf,
-        }
-    }
-}
+// impl<'a> ScatterRecord<'a> {
+//     pub fn new(_scat: Ray, _att: Vec3, _pdf: &'a dyn PDF) -> Self {
+//         Self {
+//             attenuation: _att,
+//             scattered: _scat,
+//             pdf: _pdf,
+//             is_specular : false,
+//         }
+//     }
+// }
