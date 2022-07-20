@@ -7,13 +7,9 @@ use crate::{
 };
 
 pub trait PDF {
-    fn value(&self, _d: Vec3) -> f64 {
-        0.
-    }
+    fn value(&self, _d: Vec3) -> f64;
 
-    fn generate(&self) -> Vec3 {
-        Vec3::new(0., 0., 0.)
-    }
+    fn generate(&self) -> Vec3;
 }
 
 //------------------------------------------------------------------
@@ -45,7 +41,7 @@ impl CosinePDF {
     }
 
     pub fn empty() -> Self {
-        CosinePDF::new(Vec3::new(0., 0., 0.))
+        CosinePDF::new(Vec3::new(1., 0., 0.))
     }
 }
 
@@ -65,8 +61,8 @@ impl<'a, T: Hittable> PDF for HittablePDF<'a, T> {
         self.ptr.random(self.o)
     }
 
-    fn value(&self, _d: Vec3) -> f64 {
-        self.ptr.pdf_value(self.o, _d)
+    fn value(&self, d: Vec3) -> f64 {
+        self.ptr.pdf_value(self.o, d)
     }
 }
 

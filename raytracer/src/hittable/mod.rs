@@ -49,14 +49,10 @@ pub trait Hittable: Send + Sync // 加上后缀Send/Sync，用于多线程的传
 {
     //特性，用于实现继承
     //代替c++中包裹record的类
-    fn hit(&self, _r: Ray, _t_min: f64, _t_max: f64) -> Option<HitRecord> {
-        None
-    }
+    fn hit(&self, _r: Ray, _t_min: f64, _t_max: f64) -> Option<HitRecord>;
     //判断光线在 [t_min, t_max] 内是否碰到物体
     //优化，用 Option 是否为 None 来判断碰撞与否，同时包括返回值
-    fn bounding_box(&self, _time0: f64, _time1: f64) -> Option<AABB> {
-        None
-    }
+    fn bounding_box(&self, _time0: f64, _time1: f64) -> Option<AABB>;
     // AABB 优化，判断光线是否撞到 大的 box
 
     // PDF

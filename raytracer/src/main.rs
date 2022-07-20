@@ -97,15 +97,25 @@ pub fn ray_color(
     }
 }
 
-fn add_lights() ->HittableList {
+fn add_cornell_lights() ->HittableList {
     let mut lights : HittableList = Default::default();
 
     let light = DiffuseLight::new_from_color(Vec3::new(15., 15., 15.));
     lights.add(XZRect::new(213., 343., 227., 332., 554., light));
     lights.add(Sphere::new(Vec3::new(190., 90., 190.), 90., light));
+    
+    lights
+}
+
+fn add_book2_lights() ->HittableList {
+    let mut lights : HittableList = Default::default();
+
+    let light = DiffuseLight::new_from_color(Vec3::new(7., 7., 7.));
+    lights.add(XZRect::new(123., 423., 147., 412., 554., light));
 
     lights
 }
+
 
 fn scene_book2() -> HittableList {
     let mut boxes1: HittableList = Default::default();
@@ -138,7 +148,8 @@ fn scene_book2() -> HittableList {
 
     // 顶部的矩形光源
     let light = DiffuseLight::new_from_color(Vec3::new(7., 7., 7.));
-    world.add(XZRect::new(123., 423., 147., 412., 554., light));
+    let reverse = Flipface::new(XZRect::new(123., 423., 147., 412., 554., light));
+    world.add(reverse);
 
     let center1 = Vec3::new(400., 400., 200.);
     let center2 = center1 + Vec3::new(30., 0., 0.);
@@ -152,6 +163,7 @@ fn scene_book2() -> HittableList {
         moving_sphere_material,
     ));
 
+    // let aluminum = Metal::new(Vec3::new(0.8, 0.85, 0.88), 0.);
     world.add(Sphere::new(
         Vec3::new(260., 150., 45.),
         50.,
@@ -360,16 +372,16 @@ fn main() {
 
     // ----------------------设定图像的内容-------------------------
     let aspect_ratio = 1.;
-    let width = 600;
+    let width = 800;
     let height = (width as f64 / aspect_ratio) as u32;
     let quality = 100; // From 0 to 100
     let path = "output/output.jpg";
 
-    let samples_per_pixel = 1000;
+    let samples_per_pixel = 10;
     // 每一个像素点由多少次光线来确定
     let max_depth = 50;
 
-    let lookfrom = Vec3::new(278., 278., -800.);
+    let lookfrom = Vec3::new(478., 278., -600.);
     let lookat = Vec3::new(278., 278., 0.);
     let vup = Vec3::new(0., 1., 0.);
     let aperture = 0.; // 光圈，用来控制虚化
@@ -433,8 +445,8 @@ fn main() {
 
         // 设定图片内容
         // 要保证每次都能生成相同的图片，即部分伪随机
-        let world: HittableList = cornell_box();
-        let lights: HittableList = add_lights();
+        let world: HittableList = scene_book2();
+        let lights: HittableList = add_book2_lights();
 
         // 设置进度条
         let mp = multi_progress.clone();
