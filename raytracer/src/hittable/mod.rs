@@ -9,7 +9,8 @@ use std::f64::consts::PI;
 use crate::{
     basic_component::{ray::Ray, vec3::Vec3},
     material::Material,
-    optimization::aabb::AABB, utility::random_int,
+    optimization::aabb::AABB,
+    utility::random_int,
 };
 
 #[derive(Clone, Copy)]
@@ -143,7 +144,7 @@ impl Hittable for HittableList {
     fn random(&self, o: Vec3) -> Vec3 {
         let int_size = self.objects.len() as i32;
         let t = random_int(0, int_size - 1) as usize;
-        
+
         self.objects[t].random(o)
     }
 }

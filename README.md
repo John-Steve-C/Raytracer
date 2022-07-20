@@ -6,7 +6,7 @@
 
 book2，Image22
 
-![](https://s3.bmp.ovh/imgs/2022/07/17/a4957402f5ca6dc6.jpg)
+![](https://s3.bmp.ovh/imgs/2022/07/17/a4957402f5ca6dc6.jpg) 
 
 ## 项目内容
 
@@ -25,8 +25,6 @@ book2，Image22
 对于相机，我们考虑了很多，从最基本的位置、方向、旋转角度，到观察的广角、光圈、景深的实现
 
 对于 ray_color 函数，实际上我们的操作，是用随机数值来估计一些不容易积分的函数值，借此得到光线照射到物体上的颜色
-
-一个问题是小光源会产生过多的噪音。这是因为我们的统一采样没有足够频繁地对这些光源进行采样。仅当光线向物体散射时才会对光源进行采样，但这对于小光或远处的光来说不太可能。如果我们向这些光线发送更多随机样本，我们可以减轻这个问题，但这会导致场景不准确地明亮。我们可以通过降低这些样本的权重来调整过采样来消除这种不准确性。因此需要 PDF(probability density function)
 
 ### utility.rs
 
@@ -68,13 +66,33 @@ book2，Image22
 
 ### optimiaztion
 
-利用了 BVH（Bounding Volume Hierarchies）来加快渲染速度，实现的模型为 AABB（Axis-Aligned Bounding Boxes）
+1. 利用了 BVH（Bounding Volume Hierarchies）来加快渲染速度，实现的模型为 AABB（Axis-Aligned Bounding Boxes）
 
 简单来说，就是把所有的球用长方体包起来，让光线与球相撞 `->` 光线和长方体相撞。
 
 然后二分这个长方体，$O(N)$ `->` $O(\log N)$
 
 可能可以采用更好的算法来加速渲染，比如八叉树、包围球等等
+
+2. PDF (Probability Density Function)
+
+目的：为了强调某些光线，突出明暗，模拟更真实的场景
+
+$P(x\in[a,b])=\int_a^b p(t) dt$ 。其中 $P(x)$ 为概率分布函数，$p(x)$ 为概率密度函数。
+
+算法：[蒙特卡洛积分法](https://zhuanlan.zhihu.com/p/333314002)，用 **随机抽样** 来 **无限逼近** 计算结果
+$$
+F_n(x)=\frac {1}{n} \Sigma_{k=1}^n \frac {f(x_k)}{pdf(x_k)}
+$$
+事实上，任何合理的 pdf 都能大约估计出积分的值。但是 pdf 越近似被积函数 f ，其收敛得越快。
+
+具体说明：重要性采样（Importance Sampling）
+
+选择不均匀（非常数）的 pdf，就可以加速收敛（计算积分）的速度，同时更多地考虑（接收）某一部分发出的光线（一般是光源），防止不需要的部分发出过多的 “noise”（减少其权重），干扰成像。
+
+- CosinePDF：对于每个物体的反射
+- HittablePDF：对于光源，更多地接收来自它的光线
+- MixturePDF：把两者线性混合
 
 ### texture
 
@@ -99,7 +117,13 @@ where
 - perlin：利用 perlin算法（自然噪声发生的伪随机算法）计算出的白噪声图形（噪点？），随后加入了平滑优化/频率控制/防止网格化，最后得到大理石纹理
 - image：实现贴图功能
 
-### 核心操作：
+### main.rs
+
+主程序，包括了多线程部分。
+
+- `ray_color` 函数：计算当前光线的颜色，`world` 表示舞台中的所有物体，`lights` 表示需要着重考虑从哪些位置发出的光线。
+
+## 核心操作
 
 1. 计算从眼睛（原点）出发，到达像素的光线路径
 2. 判断光线的交点/反射
@@ -114,7 +138,7 @@ where
 
 - [x] 学习并实现 book_1
 - [x] ... book_2
-- [ ] ... book_3
+- [x] ... book_3
 
 ---
 
@@ -123,5 +147,8 @@ where
     - book2_image21
       - time：40+ min `->` 5 min 43 s，
       - CPU 利用率：11% `->` 80%
+    - book2_image_22
+      - time：01:35:58
 - [x] track 1 : 把 Arc 修改为 泛型
-- [ ] track 2
+- [ ] 实现 obj 导入
+- [ ] ​

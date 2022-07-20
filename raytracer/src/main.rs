@@ -97,25 +97,24 @@ pub fn ray_color(
     }
 }
 
-fn add_cornell_lights() ->HittableList {
-    let mut lights : HittableList = Default::default();
+fn add_cornell_lights() -> HittableList {
+    let mut lights: HittableList = Default::default();
 
     let light = DiffuseLight::new_from_color(Vec3::new(15., 15., 15.));
     lights.add(XZRect::new(213., 343., 227., 332., 554., light));
     lights.add(Sphere::new(Vec3::new(190., 90., 190.), 90., light));
-    
+
     lights
 }
 
-fn add_book2_lights() ->HittableList {
-    let mut lights : HittableList = Default::default();
+fn add_book2_lights() -> HittableList {
+    let mut lights: HittableList = Default::default();
 
     let light = DiffuseLight::new_from_color(Vec3::new(7., 7., 7.));
     lights.add(XZRect::new(123., 423., 147., 412., 554., light));
 
     lights
 }
-
 
 fn scene_book2() -> HittableList {
     let mut boxes1: HittableList = Default::default();
@@ -377,7 +376,7 @@ fn main() {
     let quality = 100; // From 0 to 100
     let path = "output/output.jpg";
 
-    let samples_per_pixel = 10;
+    let samples_per_pixel = 10000;
     // 每一个像素点由多少次光线来确定
     let max_depth = 50;
 
