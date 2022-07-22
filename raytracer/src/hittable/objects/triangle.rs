@@ -5,7 +5,7 @@ use crate::{
     hittable::{HitRecord, Hittable},
     material::Material,
     optimization::aabb::AABB,
-    utility::random_double,
+    // utility::random_double,
 };
 
 pub struct Triangle<T>

@@ -7,14 +7,13 @@ use std::{
     thread,
 };
 
-use hittable::objloader::OBJ;
+use hittable::{objloader::OBJ, instance::zoom::Zoom};
 use image::{ImageBuffer, RgbImage};
 
 use console::style;
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 use optimization::pdf::MixturePDF;
 use rand::{prelude::StdRng, Rng, SeedableRng};
-use tobj::{self, Model};
 
 pub mod basic_component;
 pub mod hittable;
@@ -34,7 +33,7 @@ use crate::{
             aarect::{XYRect, XZRect, YZRect},
             cube::Cube,
             sphere::{MovingSphere, Sphere},
-            triangle::Triangle,
+            // triangle::Triangle,
         },
         Hittable, HittableList,
     },
@@ -109,7 +108,7 @@ fn add_cornell_lights() -> HittableList {
 
     let light = DiffuseLight::new_from_color(Vec3::new(15., 15., 15.));
     lights.add(XZRect::new(213., 343., 227., 332., 554., light));
-    lights.add(Sphere::new(Vec3::new(190., 90., 190.), 90., light));
+    // lights.add(Sphere::new(Vec3::new(190., 90., 190.), 90., light));
 
     lights
 }
@@ -247,32 +246,36 @@ fn cornell_box() -> HittableList {
     world.add(XZRect::new(0., 555., 0., 555., 555., white));
     world.add(XYRect::new(0., 555., 0., 555., 555., white));
 
-    // let aluminum = Metal::new(Vec3::new(0.8, 0.85, 0.88), 0.);
-    let box1 = Cube::new(Vec3::new(0., 0., 0.), Vec3::new(165., 330., 165.), white);
+    let aluminum = Metal::new(Vec3::new(0.8, 0.85, 0.88), 0.);
+    // let box1 = Cube::new(Vec3::new(0., 0., 0.), Vec3::new(165., 330., 165.), white);
     // 先旋转再平移
-    let rt1 = RotateY::new(box1, 15.); //旋转后的立方体 rt1
-    let tr1 = Translate::new(rt1, Vec3::new(265., 0., 295.)); //平移后的立方体 tr1
-    world.add(tr1);
+    // let rt1 = RotateY::new(box1, 15.); //旋转后的立方体 rt1
+    // let tr1 = Translate::new(rt1, Vec3::new(265., 0., 295.)); //平移后的立方体 tr1
+    // world.add(tr1);
     // 同理
     // let box2 = Cube::new(Vec3::new(0., 0., 0.), Vec3::new(165., 165., 165.), white);
     // let rt2 = RotateY::new(box2, -18.);
     // let tr2 = Translate::new(rt2, Vec3::new(130., 0., 65.));
     // world.add(tr2);
 
-    let glass = Dielectric::new(1.5);
-    world.add(Sphere::new(Vec3::new(190., 90., 190.), 90., glass));
+    // let glass = Dielectric::new(1.5);
+    // world.add(Sphere::new(Vec3::new(190., 90., 190.), 90., glass));
 
-    world.add(Triangle::new(
-        [
-            Vec3::new(310., 450., 310.),
-            Vec3::new(110., 450., 310.),
-            Vec3::new(190., 250., 90.),
-        ],
-        red,
-    ));
-
-    // let tp_obj = OBJ::load_from_file("import_pic/someobj/patrick.obj", red, 0., 1.);
-    // world.add(tp_obj);
+    // world.add(Triangle::new(
+    //     [
+    //         Vec3::new(310., 450., 310.),
+    //         Vec3::new(110., 450., 310.),
+    //         Vec3::new(190., 250., 90.),
+    //     ],
+    //     red,
+    // ));
+    
+    // let yellow_light = DiffuseLight::new_from_color(Vec3::new(1., 1., 0.5));
+    let tp_obj = OBJ::load_from_file("import_pic/someobj/Patrick.obj", aluminum, 0., 2.);
+    let tp1 = Zoom::new(tp_obj, Vec3::new(200., 200., 200.));
+    let tp2 = RotateY::new(tp1, 180.);
+    let tp3 = Translate::new(tp2, Vec3::new(250., 20., 300.));
+    world.add(tp3);
 
     world
 }
@@ -426,6 +429,8 @@ fn main() {
         two_spheres();
         earth();
         simple_light();
+        add_book2_lights();
+        add_cornell_lights();
     } //用来防止报错
 
     //------------------------------输出图像的特定信息-----------------------------

@@ -202,6 +202,19 @@ impl Div<f64> for Vec3 {
     }
 }
 
+impl Div<Vec3> for Vec3 {
+    //同理，只是简写，并没有任何物理意义
+    type Output = Vec3;
+
+    fn div(self, rhs: Vec3) -> Self::Output {
+        Vec3 {
+            x: self.x / rhs.x,
+            y: self.y / rhs.y,
+            z: self.z / rhs.z,
+        }
+    }
+}
+
 impl AddAssign<Vec3> for Vec3 {
     fn add_assign(&mut self, rhs: Vec3) {
         self.x += rhs.x;

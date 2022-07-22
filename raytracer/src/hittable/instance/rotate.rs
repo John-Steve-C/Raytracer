@@ -16,7 +16,7 @@ where
     pub cos_theta: f64,
     pub hasbox: bool,
     pub bbox: AABB,
-    pub after_box: T, //旋转后的结果
+    pub now_box: T, //旋转后的结果
 }
 
 impl<T: Hittable> Hittable for RotateY<T> {
@@ -43,7 +43,7 @@ impl<T: Hittable> Hittable for RotateY<T> {
             orig: _orig,
             tm: r.tm,
         };
-        if let Some(mut rec) = self.after_box.hit(rotated_ray, t_min, t_max) {
+        if let Some(mut rec) = self.now_box.hit(rotated_ray, t_min, t_max) {
             let mut _p = rec.p;
             let mut _normal = rec.normal;
 
@@ -108,7 +108,7 @@ impl<T: Hittable> RotateY<T> {
                 minimum: min_v,
                 maximum: max_v,
             },
-            after_box: p,
+            now_box: p,
         }
     }
 }
