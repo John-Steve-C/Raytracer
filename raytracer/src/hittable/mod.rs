@@ -1,8 +1,6 @@
-pub mod aarect;
-pub mod cube;
-pub mod flipface;
 pub mod instance;
-pub mod sphere;
+pub mod objects;
+pub mod objloader;
 
 use std::f64::consts::PI;
 
@@ -54,7 +52,7 @@ pub trait Hittable: Send + Sync // 加上后缀Send/Sync，用于多线程的传
     //判断光线在 [t_min, t_max] 内是否碰到物体
     //优化，用 Option 是否为 None 来判断碰撞与否，同时包括返回值
     fn bounding_box(&self, _time0: f64, _time1: f64) -> Option<AABB>;
-    // AABB 优化，判断光线是否撞到 大的 box
+    // AABB 优化，求出该物体的碰撞箱
 
     // PDF
     fn pdf_value(&self, _o: Vec3, _v: Vec3) -> f64 {

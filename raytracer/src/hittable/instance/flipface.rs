@@ -1,5 +1,8 @@
-use super::{HitRecord, Hittable};
-use crate::{basic_component::ray::Ray, optimization::aabb::AABB};
+use crate::{
+    basic_component::ray::Ray,
+    hittable::{HitRecord, Hittable},
+    optimization::aabb::AABB,
+};
 
 pub struct Flipface<T>
 where
@@ -14,6 +17,7 @@ impl<T: Hittable> Hittable for Flipface<T> {
     }
 
     fn hit(&self, r: Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
+        // 让光源上下颠倒
         if let Some(mut rec) = self.ptr.hit(r, t_min, t_max) {
             rec.front_face = !rec.front_face;
             Some(rec)

@@ -7,12 +7,14 @@ use std::{
     thread,
 };
 
+use hittable::objloader::OBJ;
 use image::{ImageBuffer, RgbImage};
 
 use console::style;
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 use optimization::pdf::MixturePDF;
 use rand::{prelude::StdRng, Rng, SeedableRng};
+use tobj::{self, Model};
 
 pub mod basic_component;
 pub mod hittable;
@@ -24,11 +26,16 @@ pub mod utility; //调用模块
 use crate::{
     basic_component::{camera::Camera, ray::Ray, vec3::Vec3},
     hittable::{
-        aarect::{XYRect, XZRect, YZRect},
-        cube::Cube,
-        flipface::Flipface,
-        instance::{constant_medium::ConstantMedium, rotate::RotateY, translate::Translate},
-        sphere::{MovingSphere, Sphere},
+        instance::{
+            constant_medium::ConstantMedium, flipface::Flipface, rotate::RotateY,
+            translate::Translate,
+        },
+        objects::{
+            aarect::{XYRect, XZRect, YZRect},
+            cube::Cube,
+            sphere::{MovingSphere, Sphere},
+            triangle::Triangle,
+        },
         Hittable, HittableList,
     },
     material::{
@@ -255,6 +262,18 @@ fn cornell_box() -> HittableList {
     let glass = Dielectric::new(1.5);
     world.add(Sphere::new(Vec3::new(190., 90., 190.), 90., glass));
 
+    world.add(Triangle::new(
+        [
+            Vec3::new(310., 450., 310.),
+            Vec3::new(110., 450., 310.),
+            Vec3::new(190., 250., 90.),
+        ],
+        red,
+    ));
+
+    // let tp_obj = OBJ::load_from_file("import_pic/someobj/patrick.obj", red, 0., 1.);
+    // world.add(tp_obj);
+
     world
 }
 
@@ -376,11 +395,11 @@ fn main() {
     let quality = 100; // From 0 to 100
     let path = "output/output.jpg";
 
-    let samples_per_pixel = 10000;
+    let samples_per_pixel = 50;
     // 每一个像素点由多少次光线来确定
     let max_depth = 50;
 
-    let lookfrom = Vec3::new(478., 278., -600.);
+    let lookfrom = Vec3::new(278., 278., -800.);
     let lookat = Vec3::new(278., 278., 0.);
     let vup = Vec3::new(0., 1., 0.);
     let aperture = 0.; // 光圈，用来控制虚化
@@ -444,8 +463,8 @@ fn main() {
 
         // 设定图片内容
         // 要保证每次都能生成相同的图片，即部分伪随机
-        let world: HittableList = scene_book2();
-        let lights: HittableList = add_book2_lights();
+        let world: HittableList = cornell_box();
+        let lights: HittableList = add_cornell_lights();
 
         // 设置进度条
         let mp = multi_progress.clone();

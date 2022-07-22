@@ -1,8 +1,8 @@
 use std::f64::INFINITY;
 
-use super::{HitRecord, Hittable};
 use crate::{
     basic_component::{ray::Ray, vec3::Vec3},
+    hittable::{HitRecord, Hittable},
     material::Material,
     optimization::aabb::AABB,
     utility::random_double,
@@ -16,7 +16,7 @@ where
     pub x1: f64,
     pub y0: f64,
     pub y1: f64,
-    pub k: f64,
+    pub k: f64, // 控制其在 Z轴　上的位置
     pub mp: T,
 }
 

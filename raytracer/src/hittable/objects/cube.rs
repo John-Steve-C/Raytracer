@@ -1,7 +1,7 @@
 use crate::{
     basic_component::{ray::Ray, vec3::Vec3},
     hittable::{
-        aarect::{XYRect, XZRect, YZRect},
+        objects::aarect::{XYRect, XZRect, YZRect},
         HitRecord, Hittable, HittableList,
     },
     material::Material,
