@@ -13,3 +13,4 @@ console = "0.9.1"    # console text format
 indicatif = "0.16.2" # progress bar
 
 rand = "0.8.3"       # random libs
+tobj = "3.2.2"       # load obj files

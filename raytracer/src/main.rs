@@ -7,7 +7,7 @@ use std::{
     thread,
 };
 
-use hittable::{objloader::OBJ, instance::zoom::Zoom};
+use hittable::{instance::zoom::Zoom, objloader::OBJ};
 use image::{ImageBuffer, RgbImage};
 
 use console::style;
@@ -269,12 +269,17 @@ fn cornell_box() -> HittableList {
     //     ],
     //     red,
     // ));
-    
+
     // let yellow_light = DiffuseLight::new_from_color(Vec3::new(1., 1., 0.5));
-    let tp_obj = OBJ::load_from_file("import_pic/someobj/Patrick.obj", aluminum, 0., 2.);
+    // let tex = ImageTexture::new_from_file("import_pic/someobj/Char_Patrick.png");
+    let tp_obj = OBJ::load_from_file("import_pic/someobj/Patrick.obj", white, 0., 1.);
     let tp1 = Zoom::new(tp_obj, Vec3::new(200., 200., 200.));
     let tp2 = RotateY::new(tp1, 180.);
-    let tp3 = Translate::new(tp2, Vec3::new(250., 20., 300.));
+    let tp3 = Translate::new(tp2, Vec3::new(250., 100., 300.));
+
+    // let tp_obj = OBJ::load_from_file("import_pic/someobj/cloud.obj", white, 0., 1.);
+    // let tp1 = Translate::new(tp_obj, Vec3::new(250., 20., 300.));
+
     world.add(tp3);
 
     world

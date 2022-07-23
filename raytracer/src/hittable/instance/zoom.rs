@@ -1,17 +1,18 @@
 use crate::{
-    basic_component::{vec3::Vec3, ray::Ray}, 
-    hittable::{Hittable, HitRecord},
+    basic_component::{ray::Ray, vec3::Vec3},
+    hittable::{HitRecord, Hittable},
     optimization::aabb::AABB,
 };
-pub struct Zoom<T>  // 缩放，改变物体大小
+pub struct Zoom<T>
+// 缩放，改变物体大小
 where
-    T : Hittable
+    T: Hittable,
 {
-    pub factor : Vec3,  // 在三个方向的缩放系数
-    pub now_box : T,
+    pub factor: Vec3, // 在三个方向的缩放系数
+    pub now_box: T,
 }
 
-impl<T : Hittable> Hittable for Zoom<T> {
+impl<T: Hittable> Hittable for Zoom<T> {
     fn hit(&self, r: Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let moved_ray = Ray {
             orig: r.orig / self.factor,
@@ -38,8 +39,11 @@ impl<T : Hittable> Hittable for Zoom<T> {
     }
 }
 
-impl<T : Hittable> Zoom<T> {
-    pub fn new(before : T, fac : Vec3) -> Self {
-        Self { factor: fac, now_box: before }
+impl<T: Hittable> Zoom<T> {
+    pub fn new(before: T, fac: Vec3) -> Self {
+        Self {
+            factor: fac,
+            now_box: before,
+        }
     }
 }
