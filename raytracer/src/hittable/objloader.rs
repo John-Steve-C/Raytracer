@@ -1,8 +1,8 @@
 use crate::{
     basic_component::{ray::Ray, vec3::Vec3},
     hittable::{objects::triangle::Triangle, HitRecord, Hittable, HittableList},
-    material::Material,
-    optimization::{aabb::AABB, bvh::BvhNode},
+    material::{lambertian::Lambertian},
+    optimization::{aabb::AABB, bvh::BvhNode}, texture::{obj::OBJTexture, image::ImageTexture},
 };
 
 pub struct OBJ {
@@ -21,19 +21,18 @@ impl Hittable for OBJ {
 }
 
 impl OBJ {
-    pub fn load_from_file<T>(file_name: &str, mat: T, t0: f64, t1: f64) -> Self
-    where
-        T: Material + 'static + Copy,
+    // 参考: https://docs.rs/tobj/3.2.2/tobj/struct.Mesh.html
+    pub fn load_from_file(file_name: &str, pic_name : &str, t0: f64, t1: f64) -> Self
     {
         let scene = tobj::load_obj(file_name, &tobj::GPU_LOAD_OPTIONS);
 
         assert!(scene.is_ok());
         let (models, mats) = scene.expect("load obj failed!");
-        let mats = mats.expect("load mtl failed!");
+        let _mats = mats.expect("load mtl failed!");
 
         let mut objects: HittableList = Default::default();
 
-        for (_i, m) in models.iter().enumerate() {
+        for (i, m) in models.iter().enumerate() {
             let mesh = &m.mesh;
 
             // let mut v = 0;
@@ -50,27 +49,34 @@ impl OBJ {
             // 点并不是按顺序排列的，所以不能直接读取
             let mut cnt = 0;
             let mut pos = [0; 3];
-            // 按照 indices 的顺序读取
+            // 按照 indices 的顺序读取（索引）
             for p in &mesh.indices {
-                pos[cnt] = (*p as usize) * 3;
-                // pos[i] 记录点i 的 x 坐标
+                pos[cnt] = *p as usize;
+                // pos[i] 记录点i 的 x 坐标的存储位置
                 cnt += 1;
                 if cnt == 3 {
                     let p1 = Vec3::new(
-                        mesh.positions[pos[0]] as f64,
-                        mesh.positions[pos[0] + 1] as f64,
-                        mesh.positions[pos[0] + 2] as f64,
+                        mesh.positions[3 * pos[0]] as f64,
+                        mesh.positions[3 * pos[0] + 1] as f64,
+                        mesh.positions[3 * pos[0] + 2] as f64,
                     );
                     let p2 = Vec3::new(
-                        mesh.positions[pos[1]] as f64,
-                        mesh.positions[pos[1] + 1] as f64,
-                        mesh.positions[pos[1] + 2] as f64,
+                        mesh.positions[3 * pos[1]] as f64,
+                        mesh.positions[3 * pos[1] + 1] as f64,
+                        mesh.positions[3 * pos[1] + 2] as f64,
                     );
                     let p3 = Vec3::new(
-                        mesh.positions[pos[2]] as f64,
-                        mesh.positions[pos[2] + 1] as f64,
-                        mesh.positions[pos[2] + 2] as f64,
+                        mesh.positions[3 * pos[2]] as f64,
+                        mesh.positions[3 * pos[2] + 1] as f64,
+                        mesh.positions[3 * pos[2] + 2] as f64,
                     );
+
+                    let u = mesh.texcoords[2 * pos[0]] as f64;
+                    let v = mesh.texcoords[2 * pos[0] + 1] as f64;
+                    let tex = OBJTexture::new_from_file(pic_name, u, 1. - v);
+                    // let tex2 = ImageTexture::new_from_file(pic_name);
+                    let mat = Lambertian::new(tex);
+
                     objects.add(Triangle::new([p1, p2, p3], mat));
                     cnt = 0;
                 }

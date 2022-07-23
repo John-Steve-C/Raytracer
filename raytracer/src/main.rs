@@ -246,7 +246,7 @@ fn cornell_box() -> HittableList {
     world.add(XZRect::new(0., 555., 0., 555., 555., white));
     world.add(XYRect::new(0., 555., 0., 555., 555., white));
 
-    let aluminum = Metal::new(Vec3::new(0.8, 0.85, 0.88), 0.);
+    // let aluminum = Metal::new(Vec3::new(0.8, 0.85, 0.88), 0.);
     // let box1 = Cube::new(Vec3::new(0., 0., 0.), Vec3::new(165., 330., 165.), white);
     // 先旋转再平移
     // let rt1 = RotateY::new(box1, 15.); //旋转后的立方体 rt1
@@ -272,10 +272,10 @@ fn cornell_box() -> HittableList {
 
     // let yellow_light = DiffuseLight::new_from_color(Vec3::new(1., 1., 0.5));
     // let tex = ImageTexture::new_from_file("import_pic/someobj/Char_Patrick.png");
-    let tp_obj = OBJ::load_from_file("import_pic/someobj/Patrick.obj", white, 0., 1.);
+    let tp_obj = OBJ::load_from_file("import_pic/someobj/Patrick.obj", "import_pic/someobj/Char_Patrick.png", 0., 1.);
     let tp1 = Zoom::new(tp_obj, Vec3::new(200., 200., 200.));
     let tp2 = RotateY::new(tp1, 180.);
-    let tp3 = Translate::new(tp2, Vec3::new(250., 100., 300.));
+    let tp3 = Translate::new(tp2, Vec3::new(250., 100., 350.));
 
     // let tp_obj = OBJ::load_from_file("import_pic/someobj/cloud.obj", white, 0., 1.);
     // let tp1 = Translate::new(tp_obj, Vec3::new(250., 20., 300.));
@@ -403,7 +403,7 @@ fn main() {
     let quality = 100; // From 0 to 100
     let path = "output/output.jpg";
 
-    let samples_per_pixel = 50;
+    let samples_per_pixel = 200;
     // 每一个像素点由多少次光线来确定
     let max_depth = 50;
 

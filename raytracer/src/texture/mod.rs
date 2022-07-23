@@ -3,6 +3,7 @@ pub mod checker;
 pub mod image;
 pub mod perlin;
 pub mod solid;
+pub mod obj;
 
 pub trait Texture: Send + Sync {
     fn get_color_value(&self, u: f64, v: f64, p: Vec3) -> Vec3;
