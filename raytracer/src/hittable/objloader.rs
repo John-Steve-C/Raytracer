@@ -2,7 +2,7 @@ use crate::{
     basic_component::{ray::Ray, vec3::Vec3},
     hittable::{objects::triangle::Triangle, HitRecord, Hittable, HittableList},
     material::{lambertian::Lambertian},
-    optimization::{aabb::AABB, bvh::BvhNode}, texture::{obj::OBJTexture, image::ImageTexture},
+    optimization::{aabb::AABB, bvh::BvhNode}, texture::obj::OBJTexture,
 };
 
 pub struct OBJ {
@@ -28,23 +28,40 @@ impl OBJ {
 
         assert!(scene.is_ok());
         let (models, mats) = scene.expect("load obj failed!");
-        let _mats = mats.expect("load mtl failed!");
+        // let mats = mats.expect("load mtl failed!");
 
         let mut objects: HittableList = Default::default();
 
-        for (i, m) in models.iter().enumerate() {
+        // for (_i, m) in mats.iter().enumerate() {
+        //     println!("i = {}", _i);
+        //     println!("name : {}", m.name);
+        //     println!("ambient : {:?}", m.ambient);
+        //     println!("{}", m.ambient_texture);
+        //     println!("diffuse : {:?}", m.diffuse);
+        //     println!("{}", m.diffuse_texture);
+        //     println!("specular : {:?}", m.specular);
+        //     println!("{}", m.specular_texture);
+        //     println!("shininess : {:?}", m.shininess);
+        //     println!("{}", m.shininess_texture);
+        //     println!("dissolve : {:?}", m.dissolve);
+        //     println!("{}", m.dissolve_texture);
+        //     println!("----------------------------------");
+        // }
+
+        for (_i, m) in models.iter().enumerate() {
             let mesh = &m.mesh;
 
-            // let mut v = 0;
-            // while v + 8 < mesh.positions.len() {
-            //     let p1 = Vec3::new(mesh.positions[v] as f64, mesh.positions[v + 1] as f64, mesh.positions[v + 2] as f64);
-            //     let p2 = Vec3::new(mesh.positions[v + 3] as f64, mesh.positions[v + 4] as f64, mesh.positions[v + 5] as f64);
-            //     let p3 = Vec3::new(mesh.positions[v + 6] as f64, mesh.positions[v + 7] as f64, mesh.positions[v + 8] as f64);
+            // 查询
+            // println!("mesh indices : {}", mesh.indices.len());
+            // println!("positions total : {}", mesh.positions.len());
+            // if mesh.vertex_color.is_empty() {println!("vertex_color is empty!");}
+            // else {println!("vertex_color total : {}", mesh.vertex_color.len());}
+            // if mesh.normals.is_empty() {println!("normals is empty!");}
+            // else {println!("normal total : {}", mesh.normals.len());}
+            // if mesh.texcoords.is_empty() {println!("texcoords is empty!");}
+            // else {println!("texcoords total : {}, indices : {}", mesh.texcoords.len(), mesh.texcoord_indices.len());}
+            // if mesh.material_id.is_some() {println!("material is {}!", mesh.material_id.unwrap());}
 
-            //     let tri = Triangle::new([p1, p2, p3], mat);
-            //     objects.add(tri);
-            //     v += 9;
-            // } 错误示范
 
             // 点并不是按顺序排列的，所以不能直接读取
             let mut cnt = 0;
@@ -71,11 +88,14 @@ impl OBJ {
                         mesh.positions[3 * pos[2] + 2] as f64,
                     );
 
-                    let u = mesh.texcoords[2 * pos[0]] as f64;
-                    let v = mesh.texcoords[2 * pos[0] + 1] as f64;
+                    let u = (mesh.texcoords[2 * pos[0]] + mesh.texcoords[2 * pos[1]] + mesh.texcoords[2 * pos[2]]) as f64 / 3.;
+                    let v = (mesh.texcoords[2 * pos[0] + 1] + mesh.texcoords[2 * pos[1] + 1] + mesh.texcoords[2 * pos[2] + 1]) as f64 / 3.;
+                    
+                    // println!("{}, {}", u, v);
                     let tex = OBJTexture::new_from_file(pic_name, u, 1. - v);
-                    // let tex2 = ImageTexture::new_from_file(pic_name);
                     let mat = Lambertian::new(tex);
+
+                    // let cl = Lambertian::new_from_color(Vec3::new(0.43, 0.73, 0.73));
 
                     objects.add(Triangle::new([p1, p2, p3], mat));
                     cnt = 0;
@@ -83,10 +103,6 @@ impl OBJ {
             }
             // break;  // 一次只处理一个物体
         }
-
-        // for (_i, m) in mats.iter().enumerate() {
-        //     m.ambient[0]
-        // }
 
         Self {
             triangles: BvhNode::new_from_list(objects, t0, t1),
