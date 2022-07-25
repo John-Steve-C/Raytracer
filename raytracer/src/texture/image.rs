@@ -1,10 +1,13 @@
 use super::Texture;
 use crate::{basic_component::vec3::Vec3, utility::clamp};
 use image::RgbImage;
+use std::sync::Arc;
 
 pub struct ImageTexture {
     //贴图
-    pub image: RgbImage,
+    pub image: Arc<RgbImage>,
+    // 每次传图片文件，会爆空间
+    // 所以要用指针，节约时间
 }
 
 impl Texture for ImageTexture {
@@ -43,7 +46,7 @@ impl ImageTexture {
         }
 
         ImageTexture {
-            image: tmp_file.into_rgb8(),
+            image: Arc::new(tmp_file.into_rgb8()),
         }
     }
 }
