@@ -63,7 +63,7 @@ impl OBJ {
             // else {println!("normal total : {}", mesh.normals.len());}
             // if mesh.texcoords.is_empty() {println!("texcoords is empty!");}
             // else {println!("texcoords total : {}, indices : {}", mesh.texcoords.len(), mesh.texcoord_indices.len());}
-            // if mesh.material_id.is_some() {println!("material is {}!", mesh.material_id.unwrap());}
+            // if mesh.material_id.is_some() {println!("material is {}!", mats[mesh.material_id.unwrap()].diffuse_texture);}
 
             // 点并不是按顺序排列的，所以不能直接读取
             let mut pos = Vec::<_>::new();

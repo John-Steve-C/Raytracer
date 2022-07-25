@@ -281,7 +281,7 @@ fn cornell_box() -> HittableList {
     let tp_obj = OBJ::load_from_file("import_pic/someobj/10483_baseball_v1_L3.obj", 0., 1.);
     // let tp_obj = OBJ::load_from_file("import_pic/someobj/10485_Baseball_bat_v1_max2011_iteration-2.obj", 0., 1.);
 
-    let tp1 = Zoom::new(tp_obj, Vec3::new(200., 200., 200.));
+    let tp1 = Zoom::new(tp_obj, Vec3::new(1., 1., 1.));
     let tp2 = RotateY::new(tp1, 180.);
     let tp3 = Translate::new(tp2, Vec3::new(300., 100., 450.));
 
@@ -411,7 +411,7 @@ fn main() {
     let quality = 100; // From 0 to 100
     let path = "output/output.jpg";
 
-    let samples_per_pixel = 500;
+    let samples_per_pixel = 50;
     // 每一个像素点由多少次光线来确定
     let max_depth = 50;
 
