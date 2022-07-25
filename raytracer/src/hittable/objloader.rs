@@ -55,7 +55,7 @@ impl OBJ {
             let pic_name = "import_pic/someobj/".to_owned()
                 + mats[mesh.material_id.unwrap()].diffuse_texture.as_str();
 
-            let pic_ptr = ImageTexture::new_from_file(&pic_name).image;    
+            let pic_ptr = ImageTexture::new_from_file(&pic_name).image;
 
             // 查询
             // println!("mesh indices : {}", mesh.indices.len());
@@ -90,30 +90,29 @@ impl OBJ {
                 // let v = (texs[id[0] as usize].1 + texs[id[1] as usize].1 + texs[id[2] as usize].1) / 3.;
 
                 // let mytex = OBJTexture::new_from_file(&pic_name, clamp(u, 0., 1.), 1. - clamp(v, 0., 1.));
-                let mytex = ImageTexture{
-                    image : pic_ptr.clone(),
+                let mytex = ImageTexture {
+                    image: pic_ptr.clone(),
                 };
                 let mat = Lambertian::new(mytex);
-                // let tri = Triangle::new(
-                //     [
-                //         pos[id[0] as usize],
-                //         pos[id[1] as usize],
-                //         pos[id[2] as usize],
-                //     ],
-                //     [
-                //         texs[id[0] as usize],
-                //         texs[id[1] as usize],
-                //         texs[id[2] as usize],
-                //     ],
-                //     mat,
-                // );
-                let tri = Triangle::new_from_obj(&pos, &texs, [id[0] as usize, id[1] as usize, id[2] as usize], mat);
+                let tri = Triangle::new(
+                    [
+                        pos[id[0] as usize],
+                        pos[id[1] as usize],
+                        pos[id[2] as usize],
+                    ],
+                    [
+                        texs[id[0] as usize],
+                        texs[id[1] as usize],
+                        texs[id[2] as usize],
+                    ],
+                    mat,
+                );
                 // tri.normal = (normals[id[0] as usize] + normals[id[1] as usize] + normals[id[2] as usize]) / 3.;
-                objects.add(tri); 
-                
+                objects.add(tri);
+
                 // println!("{} {} {}", id[0], id[1], id[2]);
             }
-            break;  // 一次只处理一个物体
+            break; // 一次只处理一个物体
         }
 
         // println!("load succeed!");

@@ -51,34 +51,6 @@ impl<T: Material> Triangle<T> {
         }
     }
 
-    pub fn new_from_obj(point : &[Vec3], _texs : &[(f64, f64)], id : [usize; 3], _mat : T) -> Self{
-        let _vers = [point[id[0]], point[id[1]], point[id[2]]];
-
-        let _i = _vers[1] - _vers[0];
-        let _j = _vers[2] - _vers[0];
-        // 表示三角形所在的平面，用来判断是否相交
-        let _center = (_vers[0] + _vers[1] + _vers[2]) / 3.;
-        let mut _normal = Vec3::cross(_i, _j);
-        let _area = _normal.length() / 2.;
-        _normal = Vec3::unit_vector(_normal);
-
-        let mut _v = Vec3::cross(_normal, _i);
-        _v /= Vec3::dot(_j, _v);
-        let mut _w = Vec3::cross(_normal, _j);
-        _w /= Vec3::dot(_i, _w);
-
-        Self {
-            vers: _vers,
-            mat: _mat,
-            normal: _normal,
-            center: _center,
-            area: _area,
-            v: _v,
-            w: _w,
-            texs: [_texs[id[0]], _texs[id[1]], _texs[id[2]]],
-        }
-    }
-
     pub fn get_dis(&self, hit_point: Vec3) -> [f64; 3] {
         // 利用碰撞点到中心的距离进行加权
         let mut c = [0.; 3];
@@ -91,10 +63,11 @@ impl<T: Material> Triangle<T> {
     }
 
     pub fn get_cord(&self, hit_point: Vec3) -> [f64; 3] {
+        // 另一种求加权值的方法（重心坐标系）
         let mut n: [Vec3; 3] = Default::default();
         let area_vec = Vec3::cross(self.vers[1] - self.vers[0], self.vers[2] - self.vers[0]);
         n[0] = Vec3::cross(self.vers[2] - self.vers[1], hit_point - self.vers[1]);
-        n[1] = Vec3::cross(self.vers[0] - self.vers[2],hit_point - self.vers[2]);
+        n[1] = Vec3::cross(self.vers[0] - self.vers[2], hit_point - self.vers[2]);
         n[2] = Vec3::cross(self.vers[1] - self.vers[0], hit_point - self.vers[0]);
 
         let mut c: [f64; 3] = Default::default();
@@ -108,13 +81,13 @@ impl<T: Material> Triangle<T> {
 impl<T: Material> Hittable for Triangle<T> {
     fn hit(&self, r: Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         // 先判断光线是否与三角形共面
-        let t = Vec3::dot(self.center - r.orig, self.normal) / Vec3::dot(r.dir, self.normal);
-        if t.is_nan() || t < t_min || t > t_max {
+        let _t = Vec3::dot(self.center - r.orig, self.normal) / Vec3::dot(r.dir, self.normal);
+        if _t.is_nan() || _t < t_min || _t > t_max {
             // 线面平行(除数为0)，不符
             return None;
         }
 
-        let p = (r.orig + r.dir * t) - self.vers[0];
+        let p = (r.orig + r.dir * _t) - self.vers[0];
         // 仿射坐标系计算
         // 参考 https://blog.csdn.net/gyb641393267/article/details/48860189
         let gamma = Vec3::dot(p, self.v);
@@ -124,14 +97,14 @@ impl<T: Material> Hittable for Triangle<T> {
                 let alpha = 1. - gamma - beta;
                 if alpha > 0. && alpha < 1. {
                     // 确定出 该点 在三角形内
-                    let c = self.get_cord(r.at(t));
+                    let c = self.get_cord(r.at(_t));
                     let _u = self.texs[0].0 * c[0] + self.texs[1].0 * c[1] + self.texs[2].0 * c[2];
                     let _v = self.texs[0].1 * c[0] + self.texs[1].1 * c[1] + self.texs[2].1 * c[2];
                     // let norm = self.normals[0] * c[0] + self.normals[1] * c[1] + self.normals[2] * c[2];
 
                     let mut rec = HitRecord {
-                        p: r.at(t),
-                        t: t,
+                        p: r.at(_t),
+                        t: _t,
                         mat: &self.mat,
                         u: _u,
                         v: _v,
