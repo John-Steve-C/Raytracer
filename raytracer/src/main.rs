@@ -242,6 +242,12 @@ fn cornell_box() -> HittableList {
     world.add(Flipface::new(XZRect::new(
         213., 343., 227., 332., 554., light,
     )));
+    world.add(XZRect::new(213., 343., 227., 332., 1., light));
+    world.add(YZRect::new(213., 343., 227., 332., 1., light));
+    world.add(Flipface::new(YZRect::new(
+        213., 343., 227., 332., 554., light,
+    )));
+
     world.add(XZRect::new(0., 555., 0., 555., 0., white));
     world.add(XZRect::new(0., 555., 0., 555., 555., white));
     world.add(XYRect::new(0., 555., 0., 555., 555., white));
@@ -271,12 +277,12 @@ fn cornell_box() -> HittableList {
     // ));
 
     // let yellow_light = DiffuseLight::new_from_color(Vec3::new(1., 1., 0.5));
-    // let tp_obj = OBJ::load_from_file("import_pic/someobj/Patrick.obj", "import_pic/someobj/Char_Patrick.png", 0., 1.);
-    // let tp_obj = OBJ::load_from_file("import_pic/someobj/10483_baseball_v1_L3.obj", "import_pic/someobj/10483_baseball_diffuse.jpg", 0., 1.);
-    let tp_obj = OBJ::load_from_file("import_pic/someobj/10485_Baseball_bat_v1_max2011_iteration-2.obj", "import_pic/someobj/10485_Baseball_bat_v1_diffuse.jpg", 0., 1.);
+    // let tp_obj = OBJ::load_from_file("import_pic/someobj/Patrick.obj", 0., 1.);
+    let tp_obj = OBJ::load_from_file("import_pic/someobj/10483_baseball_v1_L3.obj", 0., 1.);
+    // let tp_obj = OBJ::load_from_file("import_pic/someobj/10485_Baseball_bat_v1_max2011_iteration-2.obj", 0., 1.);
 
-    let tp1 = Zoom::new(tp_obj, Vec3::new(1., 5., 5.));
-    let tp2 = RotateY::new(tp1, 0.);
+    let tp1 = Zoom::new(tp_obj, Vec3::new(200., 200., 200.));
+    let tp2 = RotateY::new(tp1, 180.);
     let tp3 = Translate::new(tp2, Vec3::new(300., 100., 450.));
 
     // let tp_obj = OBJ::load_from_file("import_pic/someobj/cloud.obj", white, 0., 1.);
@@ -405,7 +411,7 @@ fn main() {
     let quality = 100; // From 0 to 100
     let path = "output/output.jpg";
 
-    let samples_per_pixel = 50;
+    let samples_per_pixel = 500;
     // 每一个像素点由多少次光线来确定
     let max_depth = 50;
 

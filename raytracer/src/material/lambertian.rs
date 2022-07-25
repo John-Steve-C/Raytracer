@@ -15,7 +15,7 @@ where
 {
     //理想散射
     pub albedo: T, //反照率
-    // 事实上也可以充当贴图
+                   // 事实上也可以充当贴图
 }
 
 impl<T: Texture> Material for Lambertian<T> {

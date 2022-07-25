@@ -1,8 +1,9 @@
 use crate::{
     basic_component::{ray::Ray, vec3::Vec3},
     hittable::{objects::triangle::Triangle, HitRecord, Hittable, HittableList},
-    material::{lambertian::Lambertian},
-    optimization::{aabb::AABB, bvh::BvhNode}, texture::obj::OBJTexture,
+    material::lambertian::Lambertian,
+    optimization::{aabb::AABB, bvh::BvhNode},
+    texture::image::ImageTexture,
 };
 
 pub struct OBJ {
@@ -22,13 +23,12 @@ impl Hittable for OBJ {
 
 impl OBJ {
     // 参考: https://docs.rs/tobj/3.2.2/tobj/struct.Mesh.html
-    pub fn load_from_file(file_name: &str, pic_name : &str, t0: f64, t1: f64) -> Self
-    {
+    pub fn load_from_file(file_name: &str, t0: f64, t1: f64) -> Self {
         let scene = tobj::load_obj(file_name, &tobj::GPU_LOAD_OPTIONS);
 
         assert!(scene.is_ok());
         let (models, mats) = scene.expect("load obj failed!");
-        // let mats = mats.expect("load mtl failed!");
+        let mats = mats.expect("load mtl failed!");
 
         let mut objects: HittableList = Default::default();
 
@@ -51,6 +51,9 @@ impl OBJ {
         for (_i, m) in models.iter().enumerate() {
             let mesh = &m.mesh;
 
+            let pic_name = "import_pic/someobj/".to_owned()
+                + mats[mesh.material_id.unwrap()].diffuse_texture.as_str();
+
             // 查询
             // println!("mesh indices : {}", mesh.indices.len());
             // println!("positions total : {}", mesh.positions.len());
@@ -62,44 +65,45 @@ impl OBJ {
             // else {println!("texcoords total : {}, indices : {}", mesh.texcoords.len(), mesh.texcoord_indices.len());}
             // if mesh.material_id.is_some() {println!("material is {}!", mesh.material_id.unwrap());}
 
-
             // 点并不是按顺序排列的，所以不能直接读取
-            let mut cnt = 0;
-            let mut pos = [0; 3];
+            let mut pos = Vec::<_>::new();
+            let mut texs = Vec::<_>::new();
+            // let mut normals = Vec::<_>::new();
+
+            for p in mesh.positions.chunks(3) {
+                // 以 3 为步长，进行切片（slices）
+                pos.push(Vec3::new(p[0] as f64, p[1] as f64, p[2] as f64));
+            }
+            for p in mesh.texcoords.chunks(2) {
+                texs.push((p[0] as f64, p[1] as f64));
+            }
+            // for p in mesh.normals.chunks(3) {
+            //     normals.push(Vec3::new(p[0] as f64, p[1] as f64, p[2] as f64));
+            // }
+
             // 按照 indices 的顺序读取（索引）
-            for p in &mesh.indices {
-                pos[cnt] = *p as usize;
-                // pos[i] 记录点i 的 x 坐标的存储位置
-                cnt += 1;
-                if cnt == 3 {
-                    let p1 = Vec3::new(
-                        mesh.positions[3 * pos[0]] as f64,
-                        mesh.positions[3 * pos[0] + 1] as f64,
-                        mesh.positions[3 * pos[0] + 2] as f64,
-                    );
-                    let p2 = Vec3::new(
-                        mesh.positions[3 * pos[1]] as f64,
-                        mesh.positions[3 * pos[1] + 1] as f64,
-                        mesh.positions[3 * pos[1] + 2] as f64,
-                    );
-                    let p3 = Vec3::new(
-                        mesh.positions[3 * pos[2]] as f64,
-                        mesh.positions[3 * pos[2] + 1] as f64,
-                        mesh.positions[3 * pos[2] + 2] as f64,
-                    );
+            for id in mesh.indices.chunks(3) {
+                // let u = (texs[id[0] as usize].0 + texs[id[1] as usize].0 + texs[id[2] as usize].0) / 3.;
+                // let v = (texs[id[0] as usize].1 + texs[id[1] as usize].1 + texs[id[2] as usize].1) / 3.;
 
-                    let u = (mesh.texcoords[2 * pos[0]] + mesh.texcoords[2 * pos[1]] + mesh.texcoords[2 * pos[2]]) as f64 / 3.;
-                    let v = (mesh.texcoords[2 * pos[0] + 1] + mesh.texcoords[2 * pos[1] + 1] + mesh.texcoords[2 * pos[2] + 1]) as f64 / 3.;
-                    
-                    // println!("{}, {}", u, v);
-                    let tex = OBJTexture::new_from_file(pic_name, u, 1. - v);
-                    let mat = Lambertian::new(tex);
-
-                    // let cl = Lambertian::new_from_color(Vec3::new(0.43, 0.73, 0.73));
-
-                    objects.add(Triangle::new([p1, p2, p3], mat));
-                    cnt = 0;
-                }
+                // let mytex = OBJTexture::new_from_file(&pic_name, clamp(u, 0., 1.), 1. - clamp(v, 0., 1.));
+                let mytex = ImageTexture::new_from_file(&pic_name);
+                let mat = Lambertian::new(mytex);
+                let tri = Triangle::new(
+                    [
+                        pos[id[0] as usize],
+                        pos[id[1] as usize],
+                        pos[id[2] as usize],
+                    ],
+                    [
+                        texs[id[0] as usize],
+                        texs[id[1] as usize],
+                        texs[id[2] as usize],
+                    ],
+                    mat,
+                );
+                // tri.normal = (normals[id[0] as usize] + normals[id[1] as usize] + normals[id[2] as usize]) / 3.;
+                objects.add(tri);
             }
             // break;  // 一次只处理一个物体
         }

@@ -1,12 +1,12 @@
 use super::Texture;
-use crate::{basic_component::vec3::Vec3};
+use crate::basic_component::vec3::Vec3;
 use image::RgbImage;
 
 pub struct OBJTexture {
     //贴图
     pub image: RgbImage,
-    pub u : f64,
-    pub v : f64,
+    pub u: f64,
+    pub v: f64,
 }
 
 impl Texture for OBJTexture {
@@ -31,7 +31,7 @@ impl Texture for OBJTexture {
 }
 
 impl OBJTexture {
-    pub fn new_from_file(file_name: &str, _u : f64, _v : f64) -> Self {
+    pub fn new_from_file(file_name: &str, _u: f64, _v: f64) -> Self {
         let tmp_file;
         match image::open(file_name) {
             //文件读入
@@ -41,8 +41,8 @@ impl OBJTexture {
 
         OBJTexture {
             image: tmp_file.into_rgb8(),
-            u : _u,
-            v : _v,
+            u: _u,
+            v: _v,
         }
     }
 }

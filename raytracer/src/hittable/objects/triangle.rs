@@ -17,18 +17,17 @@ where
     pub normal: Vec3,
     pub center: Vec3,
     pub area: f64,
-    // 表示三角形所在的平面，用来判断是否相交
-    i: Vec3,
-    j: Vec3,
     // 用来判断点是否在三角形内部的辅助变量
     v: Vec3,
     w: Vec3,
+    pub texs: [(f64, f64); 3],
 }
 
 impl<T: Material> Triangle<T> {
-    pub fn new(point: [Vec3; 3], _mat: T) -> Self {
+    pub fn new(point: [Vec3; 3], _texs: [(f64, f64); 3], _mat: T) -> Self {
         let _i = point[1] - point[0];
         let _j = point[2] - point[0];
+        // 表示三角形所在的平面，用来判断是否相交
         let _center = (point[0] + point[1] + point[2]) / 3.;
         let mut _normal = Vec3::cross(_i, _j);
         let _area = _normal.length() / 2.;
@@ -45,11 +44,21 @@ impl<T: Material> Triangle<T> {
             normal: _normal,
             center: _center,
             area: _area,
-            i: _i,
-            j: _j,
             v: _v,
             w: _w,
+            texs: _texs,
         }
+    }
+
+    pub fn get_dis(&self, hit_point: Vec3) -> [f64; 3] {
+        // 利用碰撞点到中心的距离进行加权
+        let mut c = [0.; 3];
+        c[0] = (hit_point - self.vers[0]).length();
+        c[1] = (hit_point - self.vers[1]).length();
+        c[2] = (hit_point - self.vers[2]).length();
+        let tot = c[0] + c[1] + c[2];
+
+        [c[0] / tot, c[1] / tot, c[2] / tot]
     }
 }
 
@@ -72,12 +81,17 @@ impl<T: Material> Hittable for Triangle<T> {
                 let alpha = 1. - gamma - beta;
                 if alpha > 0. && alpha < 1. {
                     // 确定出 该点 在三角形内
+                    let c = self.get_dis(r.at(t));
+                    let _u = self.texs[0].0 * c[0] + self.texs[1].0 * c[1] + self.texs[2].0 * c[2];
+                    let _v = self.texs[0].1 * c[0] + self.texs[1].1 * c[1] + self.texs[2].1 * c[2];
+                    // let norm = self.normals[0] * c[0] + self.normals[1] * c[1] + self.normals[2] * c[2];
+
                     let mut rec = HitRecord {
                         p: r.at(t),
                         t: t,
                         mat: &self.mat,
-                        u: alpha,
-                        v: beta,
+                        u: _u,
+                        v: _v,
 
                         front_face: true,
                         normal: Vec3::new(0., 0., 0.),
