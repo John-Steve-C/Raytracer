@@ -1,6 +1,0 @@
-/target
-/output/*
-/.vscode
-!.gitkeep
-
-RayTracer 学习笔记.md
