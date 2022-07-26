@@ -7,7 +7,7 @@ use std::{
     thread,
 };
 
-use hittable::{instance::zoom::Zoom, objloader::OBJ};
+use hittable::{instance::{zoom::Zoom, rotate::{RotateX, RotateZ}}, objloader::OBJ};
 use image::{ImageBuffer, RgbImage};
 
 use console::style;
@@ -280,18 +280,20 @@ fn cornell_box() -> HittableList {
     // ));
 
     // let yellow_light = DiffuseLight::new_from_color(Vec3::new(1., 1., 0.5));
-    let tp_obj = OBJ::load_from_file("import_pic/someobj/patrick.obj", 0., 1.);
-    // let tp_obj = OBJ::load_from_file("import_pic/someobj/10483_baseball_v1_L3.obj", 0., 1.);
+    // let tp_obj = OBJ::load_from_file("import_pic/someobj/patrick.obj", 0., 1.);
+    let tp_obj = OBJ::load_from_file("import_pic/someobj/10483_baseball_v1_L3.obj", 0., 1.);
     // let tp_obj = OBJ::load_from_file("import_pic/someobj/10485_Baseball_bat_v1_max2011_iteration-2.obj", 0., 1.);
 
-    let tp1 = Zoom::new(tp_obj, Vec3::new(200., 200., 200.));
+    let tp1 = Zoom::new(tp_obj, Vec3::new(20., 20., 20.));
     let tp2 = RotateY::new(tp1, 180.);
-    let tp3 = Translate::new(tp2, Vec3::new(300., 100., 450.));
+    let tp3 = RotateX::new(tp2, -30.);
+    let tp4 = RotateZ::new(tp3, 30.);
+    let tp5 = Translate::new(tp4, Vec3::new(300., 100., 450.));
 
     // let tp_obj = OBJ::load_from_file("import_pic/someobj/cloud.obj", white, 0., 1.);
     // let tp1 = Translate::new(tp_obj, Vec3::new(250., 20., 300.));
 
-    world.add(tp3);
+    world.add(tp5);
 
     world
 }

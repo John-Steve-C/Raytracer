@@ -1,6 +1,6 @@
 use crate::{
     basic_component::{ray::Ray, vec3::Vec3},
-    hittable::{objects::triangle::Triangle, HitRecord, Hittable, HittableList},
+    hittable::{objects::triangle::OBJTriangle, HitRecord, Hittable, HittableList},
     material::lambertian::Lambertian,
     optimization::{aabb::AABB, bvh::BvhNode},
     texture::image::ImageTexture,
@@ -94,7 +94,7 @@ impl OBJ {
                     image: pic_ptr.clone(),
                 };
                 let mat = Lambertian::new(mytex);
-                let tri = Triangle::new(
+                let tri = OBJTriangle::new(
                     [
                         pos[id[0] as usize],
                         pos[id[1] as usize],
