@@ -111,6 +111,7 @@ impl BvhNode {
         BvhNode::new_from_vec(list.objects, time0, time1)
     }
 
+    #[allow(clippy::borrowed_box)]
     pub fn new_from_vec(src_objects: Vec<Box<dyn Hittable>>, time0: f64, time1: f64) -> Self {
         let mut objects = src_objects;
 

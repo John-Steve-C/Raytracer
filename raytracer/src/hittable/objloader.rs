@@ -112,7 +112,7 @@ impl OBJ {
 
                 // println!("{} {} {}", id[0], id[1], id[2]);
             }
-            break; // 一次只处理一个物体
+            // break; // 一次只处理一个物体
         }
 
         // println!("load succeed!");

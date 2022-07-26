@@ -109,6 +109,9 @@ fn add_cornell_lights() -> HittableList {
     let light = DiffuseLight::new_from_color(Vec3::new(15., 15., 15.));
     lights.add(XZRect::new(213., 343., 227., 332., 554., light));
     // lights.add(Sphere::new(Vec3::new(190., 90., 190.), 90., light));
+    lights.add(XZRect::new(213., 343., 227., 332., 1., light));
+    lights.add(YZRect::new(213., 343., 227., 332., 1., light));
+    lights.add(YZRect::new(213., 343., 227., 332., 554., light));
 
     lights
 }
@@ -242,11 +245,11 @@ fn cornell_box() -> HittableList {
     world.add(Flipface::new(XZRect::new(
         213., 343., 227., 332., 554., light,
     )));
-    // world.add(XZRect::new(213., 343., 227., 332., 1., light));
-    // world.add(YZRect::new(213., 343., 227., 332., 1., light));
-    // world.add(Flipface::new(YZRect::new(
-    //     213., 343., 227., 332., 554., light,
-    // )));
+    world.add(XZRect::new(213., 343., 227., 332., 1., light));
+    world.add(YZRect::new(213., 343., 227., 332., 1., light));
+    world.add(Flipface::new(YZRect::new(
+        213., 343., 227., 332., 554., light,
+    )));
 
     world.add(XZRect::new(0., 555., 0., 555., 0., white));
     world.add(XZRect::new(0., 555., 0., 555., 555., white));
@@ -411,7 +414,7 @@ fn main() {
     let quality = 100; // From 0 to 100
     let path = "output/output.jpg";
 
-    let samples_per_pixel = 1000;
+    let samples_per_pixel = 50;
     // 每一个像素点由多少次光线来确定
     let max_depth = 50;
 

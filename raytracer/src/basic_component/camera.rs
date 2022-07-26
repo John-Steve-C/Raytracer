@@ -18,6 +18,7 @@ pub struct Camera {
 }
 
 impl Camera {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         lookfrom: Vec3, //相机放置的位置
         lookat: Vec3,   //相机朝向的点

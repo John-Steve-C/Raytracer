@@ -26,6 +26,14 @@ impl Hittable for Cube {
     fn hit(&self, r: Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         self.sides.hit(r, t_min, t_max)
     }
+
+    fn pdf_value(&self, o: Vec3, v: Vec3) -> f64 {
+        self.sides.pdf_value(o, v)
+    }
+
+    fn random(&self, o: Vec3) -> Vec3 {
+        self.sides.random(o)
+    }
 }
 
 impl Cube {

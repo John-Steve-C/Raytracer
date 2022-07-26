@@ -26,7 +26,7 @@ impl AABB {
                 return false;
             }
         }
-        return true;
+        true
     }
 
     pub fn surrounding_box(box0: AABB, box1: AABB) -> AABB {

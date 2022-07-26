@@ -28,6 +28,7 @@ impl ONB {
         self.u() * a.x + self.v() * a.y + self.w() * a.z
     }
 
+    #[allow(clippy::many_single_char_names)]
     pub fn build_from_w(n: Vec3) -> Self {
         let w = Vec3::unit_vector(n);
         let a;

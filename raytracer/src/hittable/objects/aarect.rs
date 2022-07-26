@@ -55,6 +55,28 @@ impl<T: Material> Hittable for XYRect<T> {
         rec.set_face_normal(r, outward_normal);
         Some(rec)
     }
+
+    fn pdf_value(&self, o: Vec3, v: Vec3) -> f64 {
+        // ray 的 t 是否为 0？
+        if let Some(rec) = self.hit(Ray::new(o, v, 0.), 0.001, INFINITY) {
+            let area = (self.x1 - self.x0) * (self.y1 - self.y0);
+            let distance_squared = rec.t * rec.t * v.length_squared();
+            let cosine = (Vec3::dot(v, rec.normal) / v.length()).abs();
+
+            distance_squared / (cosine * area)
+        } else {
+            0.
+        }
+    }
+
+    fn random(&self, o: Vec3) -> Vec3 {
+        let random_point = Vec3::new(
+            random_double(self.x0, self.x1),
+            random_double(self.y0, self.y1),
+            self.k,
+        );
+        random_point - o
+    }
 }
 
 impl<T: Material> XYRect<T> {
@@ -195,6 +217,28 @@ impl<T: Material> Hittable for YZRect<T> {
         };
         rec.set_face_normal(r, outward_normal);
         Some(rec)
+    }
+
+    fn pdf_value(&self, o: Vec3, v: Vec3) -> f64 {
+        // ray 的 t 是否为 0？
+        if let Some(rec) = self.hit(Ray::new(o, v, 0.), 0.001, INFINITY) {
+            let area = (self.z1 - self.z0) * (self.y1 - self.y0);
+            let distance_squared = rec.t * rec.t * v.length_squared();
+            let cosine = (Vec3::dot(v, rec.normal) / v.length()).abs();
+
+            distance_squared / (cosine * area)
+        } else {
+            0.
+        }
+    }
+
+    fn random(&self, o: Vec3) -> Vec3 {
+        let random_point = Vec3::new(
+            self.k,
+            random_double(self.y0, self.y1),
+            random_double(self.z0, self.z1),
+        );
+        random_point - o
     }
 }
 

@@ -9,6 +9,7 @@ pub struct Perlin {
 }
 
 impl Perlin {
+    #[allow(clippy::new_without_default, clippy::needless_range_loop)]
     pub fn new() -> Self {
         let mut _ranvec: [Vec3; 256] = [Vec3::new(0., 0., 0.); 256];
         //用随机的单位向量来代替随机的double，可以进一步避免格子化的出现
@@ -41,13 +42,12 @@ impl Perlin {
         for i in (0..n).rev() {
             let t = i as usize;
             let target = random_int(0, i) as usize;
-            let tmp = p[t];
-            p[t] = p[target];
-            p[target] = tmp;
+            p.swap(t, target);
             // swap(&mut p[t], &mut p[target]);
         }
     }
 
+    #[allow(clippy::many_single_char_names, clippy::needless_range_loop)]
     pub fn noise(&self, p: Vec3) -> f64 {
         let u = p.x - p.x.floor();
         let v = p.y - p.y.floor();
@@ -72,6 +72,7 @@ impl Perlin {
         Perlin::perlin_interp(c, u, v, w)
     }
 
+    #[allow(clippy::needless_range_loop)]
     pub fn perlin_interp(c: [[[Vec3; 2]; 2]; 2], u: f64, v: f64, w: f64) -> f64 {
         //三维线性化处理，让纹理更平滑
 

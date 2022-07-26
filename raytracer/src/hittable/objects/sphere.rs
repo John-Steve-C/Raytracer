@@ -19,6 +19,7 @@ where
 }
 
 impl<T: Material> Hittable for Sphere<T> {
+    #[allow(clippy::suspicious_operation_groupings)]
     fn hit(&self, r: Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let oc = r.orig - self.center;
         let a = r.dir.length_squared();
@@ -111,6 +112,7 @@ where
 }
 
 impl<T: Material> Hittable for MovingSphere<T> {
+    #[allow(clippy::suspicious_operation_groupings)]
     fn hit(&self, r: Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let oc = r.orig - self.get_center(r.tm);
         let a = r.dir.length_squared();
