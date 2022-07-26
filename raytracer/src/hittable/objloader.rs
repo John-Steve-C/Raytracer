@@ -52,11 +52,6 @@ impl OBJ {
         for (_i, m) in models.iter().enumerate() {
             let mesh = &m.mesh;
 
-            let pic_name = "import_pic/someobj/".to_owned()
-                + mats[mesh.material_id.unwrap()].diffuse_texture.as_str();
-
-            let pic_ptr = ImageTexture::new_from_file(&pic_name).image;
-
             // 查询
             // println!("mesh indices : {}", mesh.indices.len());
             // println!("positions total : {}", mesh.positions.len());
@@ -67,6 +62,19 @@ impl OBJ {
             // if mesh.texcoords.is_empty() {println!("texcoords is empty!");}
             // else {println!("texcoords total : {}, indices : {}", mesh.texcoords.len(), mesh.texcoord_indices.len());}
             // if mesh.material_id.is_some() {println!("material is {}!", mats[mesh.material_id.unwrap()].diffuse_texture);}
+
+            // 特判
+            let tp_index;
+            if mesh.material_id.is_none() {
+                tp_index = 0;
+            } else {
+                tp_index = mesh.material_id.unwrap();
+            }
+
+            let pic_name =
+                "import_pic/someobj/".to_owned() + mats[tp_index].diffuse_texture.as_str();
+
+            let pic_ptr = ImageTexture::new_from_file(&pic_name).image;
 
             // 点并不是按顺序排列的，所以不能直接读取
             let mut pos = Vec::<_>::new();

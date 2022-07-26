@@ -7,7 +7,14 @@ use std::{
     thread,
 };
 
-use hittable::{instance::{zoom::Zoom, rotate::{RotateX, RotateZ}}, objloader::OBJ};
+use hittable::{
+    instance::{
+        rotate::{RotateX, RotateZ},
+        zoom::Zoom,
+    },
+    objects::triangle::Triangle,
+    objloader::OBJ,
+};
 use image::{ImageBuffer, RgbImage};
 
 use console::style;
@@ -65,6 +72,7 @@ pub fn ray_color(
     }
 
     let emitted: Vec3;
+
     // 判断是否碰到物体
     // t_min 修正为 0.01，因为光线并不是在 t=0 处才会击中物体
     if let Some(rec) = world.hit(r, 0.001, INFINITY) {
@@ -106,12 +114,25 @@ pub fn ray_color(
 fn add_cornell_lights() -> HittableList {
     let mut lights: HittableList = Default::default();
 
-    let light = DiffuseLight::new_from_color(Vec3::new(15., 15., 15.));
-    lights.add(XZRect::new(213., 343., 227., 332., 554., light));
     // lights.add(Sphere::new(Vec3::new(190., 90., 190.), 90., light));
-    lights.add(XZRect::new(213., 343., 227., 332., 1., light));
+    let light = DiffuseLight::new_from_color(Vec3::new(15., 15., 15.));
+    // lights.add(XZRect::new(213., 343., 227., 332., 554., light));
+    // lights.add(XZRect::new(213., 343., 227., 332., 1., light));
     lights.add(YZRect::new(213., 343., 227., 332., 1., light));
     lights.add(YZRect::new(213., 343., 227., 332., 554., light));
+    lights.add(Cube::new(
+        Vec3::new(213., 530., 227.),
+        Vec3::new(343., 550., 332.),
+        light,
+    ));
+    // lights.add(Triangle::new(
+    //     [
+    //         Vec3::new(213., 1., 227.),
+    //         Vec3::new(343., 1., 227.),
+    //         Vec3::new(283., 1., 332.),
+    //     ],
+    //     light,
+    // ));
 
     lights
 }
@@ -236,19 +257,25 @@ fn cornell_box() -> HittableList {
     let red = Lambertian::new_from_color(Vec3::new(0.65, 0.05, 0.05));
     let white = Lambertian::new_from_color(Vec3::new(0.73, 0.73, 0.73));
     let green = Lambertian::new_from_color(Vec3::new(0.12, 0.45, 0.15));
+    let grey = Lambertian::new_from_color(Vec3::new(0.53, 0.53, 0.53));
     let light = DiffuseLight::new_from_color(Vec3::new(15., 15., 15.));
     // 用颜色来控制亮度？
 
-    world.add(YZRect::new(0., 555., 0., 555., 555., green));
-    world.add(YZRect::new(0., 555., 0., 555., 0., red));
-    // world.add(XZRect::new(213., 343., 227., 332., 554., light));
-    world.add(Flipface::new(XZRect::new(
-        213., 343., 227., 332., 554., light,
-    )));
-    world.add(XZRect::new(213., 343., 227., 332., 1., light));
+    world.add(YZRect::new(0., 555., 0., 555., 555., white));
+    world.add(YZRect::new(0., 555., 0., 555., 0., white));
+
+    // world.add(Flipface::new(XZRect::new(
+    //     213., 343., 227., 332., 554., light,
+    // )));
+    // world.add(XZRect::new(213., 343., 227., 332., 1., light));
     world.add(YZRect::new(213., 343., 227., 332., 1., light));
     world.add(Flipface::new(YZRect::new(
         213., 343., 227., 332., 554., light,
+    )));
+    world.add(Flipface::new(Cube::new(
+        Vec3::new(213., 530., 227.),
+        Vec3::new(343., 550., 332.),
+        light,
     )));
 
     world.add(XZRect::new(0., 555., 0., 555., 0., white));
@@ -281,14 +308,15 @@ fn cornell_box() -> HittableList {
 
     // let yellow_light = DiffuseLight::new_from_color(Vec3::new(1., 1., 0.5));
     // let tp_obj = OBJ::load_from_file("import_pic/someobj/patrick.obj", 0., 1.);
-    let tp_obj = OBJ::load_from_file("import_pic/someobj/10483_baseball_v1_L3.obj", 0., 1.);
+    // let tp_obj = OBJ::load_from_file("import_pic/someobj/10483_baseball_v1_L3.obj", 0., 1.);
     // let tp_obj = OBJ::load_from_file("import_pic/someobj/10485_Baseball_bat_v1_max2011_iteration-2.obj", 0., 1.);
+    let tp_obj = OBJ::load_from_file("import_pic/someobj/thomas.obj", 0., 1.);
 
     let tp1 = Zoom::new(tp_obj, Vec3::new(20., 20., 20.));
-    let tp2 = RotateY::new(tp1, 180.);
-    let tp3 = RotateX::new(tp2, -30.);
-    let tp4 = RotateZ::new(tp3, 30.);
-    let tp5 = Translate::new(tp4, Vec3::new(300., 100., 450.));
+    let tp2 = RotateY::new(tp1, 210.);
+    let tp3 = RotateX::new(tp2, 0.);
+    let tp4 = RotateZ::new(tp3, 0.);
+    let tp5 = Translate::new(tp4, Vec3::new(300., 200., 450.));
 
     // let tp_obj = OBJ::load_from_file("import_pic/someobj/cloud.obj", white, 0., 1.);
     // let tp1 = Translate::new(tp_obj, Vec3::new(250., 20., 300.));
@@ -416,7 +444,7 @@ fn main() {
     let quality = 100; // From 0 to 100
     let path = "output/output.jpg";
 
-    let samples_per_pixel = 50;
+    let samples_per_pixel = 1000;
     // 每一个像素点由多少次光线来确定
     let max_depth = 50;
 

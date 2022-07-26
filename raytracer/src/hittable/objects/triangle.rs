@@ -3,7 +3,7 @@ use std::f64::{INFINITY, NEG_INFINITY};
 use crate::{
     basic_component::{ray::Ray, vec3::Vec3},
     hittable::{HitRecord, Hittable},
-    material::Material,
+    material::{metal::Metal, Material},
     optimization::aabb::AABB,
     utility::random_double,
 };
@@ -158,6 +158,7 @@ where
     v: Vec3,
     w: Vec3,
     pub texs: [(f64, f64); 3],
+    pub aluminum: Metal,
 }
 
 impl<T: Material> OBJTriangle<T> {
@@ -184,6 +185,7 @@ impl<T: Material> OBJTriangle<T> {
             v: _v,
             w: _w,
             texs: _texs,
+            aluminum: Metal::new(Vec3::new(0.8, 0.85, 0.88), 0.),
         }
     }
 
@@ -237,6 +239,7 @@ impl<T: Material> Hittable for OBJTriangle<T> {
                     let _u = self.texs[0].0 * c[0] + self.texs[1].0 * c[1] + self.texs[2].0 * c[2];
                     let _v = self.texs[0].1 * c[0] + self.texs[1].1 * c[1] + self.texs[2].1 * c[2];
                     // let norm = self.normals[0] * c[0] + self.normals[1] * c[1] + self.normals[2] * c[2];
+                    // println!("{}, {}", _u, _v);
 
                     let mut rec = HitRecord {
                         p: r.at(_t),
@@ -249,6 +252,13 @@ impl<T: Material> Hittable for OBJTriangle<T> {
                         normal: Vec3::new(0., 0., 0.),
                     };
                     rec.set_face_normal(r, self.normal);
+
+                    // 为了特化，把材质修改为铝
+                    if _u > 0.4 && _u < 1. && _v > 0.6 && _v < 0.8 {
+                    } else {
+                        rec.mat = &self.aluminum;
+                    }
+
                     return Some(rec);
                 }
             }
