@@ -150,5 +150,6 @@ where
     - book2_image_22
       - time：01:35:58
 - [x] track 1 : 把 Arc 修改为 泛型
-- [ ] 实现 obj 导入
-- [ ] ​
+- [x] 实现 obj 导入
+- [ ] ​实现 code generation 功能
+- [ ] 绘制一张作品
