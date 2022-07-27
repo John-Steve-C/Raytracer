@@ -3,7 +3,7 @@ use crate::{
     hittable::{objects::triangle::OBJTriangle, HitRecord, Hittable, HittableList},
     material::lambertian::Lambertian,
     optimization::{aabb::AABB, bvh::BvhNode},
-    texture::image::ImageTexture,
+    texture::{image::ImageTexture, Texture},
 };
 // use std::sync::Arc;
 
@@ -34,11 +34,13 @@ impl OBJ {
         let mut objects: HittableList = Default::default();
 
         // 特判
-        let is_al;
+        let mut is_thomas = false;
+        let mut is_guy = false;
         if file_name == "import_pic/someobj/thomas.obj" {
-            is_al = true;
-        } else {
-            is_al = false;
+            is_thomas = true;
+        }
+        if file_name == "import_pic/someobj/guy.obj" {
+            is_guy = true;
         }
 
         // for (_i, m) in mats.iter().enumerate() {
@@ -102,13 +104,39 @@ impl OBJ {
 
             // 按照 indices 的顺序读取（索引）
             for id in mesh.indices.chunks(3) {
-                // let u = (texs[id[0] as usize].0 + texs[id[1] as usize].0 + texs[id[2] as usize].0) / 3.;
-                // let v = (texs[id[0] as usize].1 + texs[id[1] as usize].1 + texs[id[2] as usize].1) / 3.;
+                let mut is_al = false;
+                let mut is_black = false;
+                let mut is_yellow = false;
+
+                let u =
+                    (texs[id[0] as usize].0 + texs[id[1] as usize].0 + texs[id[2] as usize].0) / 3.;
+                let v =
+                    (texs[id[0] as usize].1 + texs[id[1] as usize].1 + texs[id[2] as usize].1) / 3.;
 
                 // let mytex = OBJTexture::new_from_file(&pic_name, clamp(u, 0., 1.), 1. - clamp(v, 0., 1.));
                 let mytex = ImageTexture {
                     image: pic_ptr.clone(),
                 };
+
+                // 特判当前颜色，用来实现金属反光贴图
+                let tp_color = mytex.get_color_value(u, v, Vec3::new(0., 0., 0.));
+                if is_guy && tp_color.x < 0.1 && tp_color.y < 0.1 && tp_color.z < 0.1 {
+                    is_black = true;
+                }
+                if is_guy
+                    && tp_color.x * 255. > 0.92
+                    && tp_color.x < 0.93
+                    && tp_color.y > 0.78
+                    && tp_color.y < 0.79
+                    && tp_color.z > 0.25
+                    && tp_color.z < 0.26
+                {
+                    is_yellow = true;
+                }
+                if is_thomas && tp_color.x > 0.7 && tp_color.y > 0.7 && tp_color.z > 0.7 {
+                    is_al = true;
+                }
+
                 let mat = Lambertian::new(mytex);
                 let tri = OBJTriangle::new(
                     [
@@ -123,6 +151,8 @@ impl OBJ {
                     ],
                     mat,
                     is_al,
+                    is_black,
+                    is_yellow,
                 );
                 // tri.normal = (normals[id[0] as usize] + normals[id[1] as usize] + normals[id[2] as usize]) / 3.;
                 objects.add(tri);

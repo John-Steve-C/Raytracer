@@ -158,12 +158,25 @@ where
     v: Vec3,
     w: Vec3,
     pub texs: [(f64, f64); 3],
+
+    // 用于特判
     pub aluminum: Metal,
+    pub black: Metal,
+    pub yellow: Metal,
     pub is_al: bool,
+    pub is_black: bool,
+    pub is_yellow: bool,
 }
 
 impl<T: Material> OBJTriangle<T> {
-    pub fn new(point: [Vec3; 3], _texs: [(f64, f64); 3], _mat: T, _is_al: bool) -> Self {
+    pub fn new(
+        point: [Vec3; 3],
+        _texs: [(f64, f64); 3],
+        _mat: T,
+        _is_al: bool,
+        _is_black: bool,
+        _is_yellow: bool,
+    ) -> Self {
         let _i = point[1] - point[0];
         let _j = point[2] - point[0];
         // 表示三角形所在的平面，用来判断是否相交
@@ -187,7 +200,11 @@ impl<T: Material> OBJTriangle<T> {
             w: _w,
             texs: _texs,
             aluminum: Metal::new(Vec3::new(0.8, 0.85, 0.88), 0.),
+            black: Metal::new(Vec3::new(0.1, 0.1, 0.1), 0.),
+            yellow: Metal::new(Vec3::new(0.925, 0.788, 0.251), 0.),
             is_al: _is_al,
+            is_black: _is_black,
+            is_yellow: _is_yellow,
         }
     }
 
@@ -255,12 +272,17 @@ impl<T: Material> Hittable for OBJTriangle<T> {
                     };
                     rec.set_face_normal(r, self.normal);
 
+                    // println!("{}, {}", self.is_black, self.is_al);
+
                     // 为了特化，把材质修改为铝，实现金属材质的反射效果
                     if self.is_al {
-                        if _u > 0.4 && _u < 1. && _v > 0.6 && _v < 0.8 {
-                        } else {
-                            rec.mat = &self.aluminum;
-                        }
+                        rec.mat = &self.aluminum;
+                    }
+                    if self.is_yellow {
+                        rec.mat = &self.yellow;
+                    }
+                    if self.is_black {
+                        rec.mat = &self.black;
                     }
 
                     return Some(rec);

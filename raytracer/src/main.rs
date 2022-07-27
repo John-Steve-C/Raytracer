@@ -300,7 +300,7 @@ fn cornell_box() -> HittableList {
         0.,
         555.,
         500.,
-        Lambertian::new(ImageTexture::new_from_file("import_pic/punk.png")),
+        Lambertian::new(ImageTexture::new_from_file("import_pic/cyberpunk.png")),
     ));
 
     // let aluminum = Metal::new(Vec3::new(0.8, 0.85, 0.88), 0.);
@@ -347,7 +347,7 @@ fn cornell_box() -> HittableList {
     let tp_obj2 = OBJ::load_from_file("import_pic/someobj/guy.obj", 0., 1.);
     let t1 = Zoom::new(tp_obj2, Vec3::new(20., 20., 20.));
     let t2 = RotateY::new(t1, 130.);
-    let t3 = Translate::new(t2, Vec3::new(-50., 50., 150.));
+    let t3 = Translate::new(t2, Vec3::new(0., 50., 150.));
     world.add(t3);
 
     world
@@ -471,7 +471,7 @@ fn main() {
     let quality = 100; // From 0 to 100
     let path = "output/output.jpg";
 
-    let samples_per_pixel = 1000;
+    let samples_per_pixel = 10000;
     // 每一个像素点由多少次光线来确定
     let max_depth = 50;
 
