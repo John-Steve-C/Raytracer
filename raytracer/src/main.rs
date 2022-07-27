@@ -316,12 +316,18 @@ fn cornell_box() -> HittableList {
     let tp2 = RotateY::new(tp1, 210.);
     let tp3 = RotateX::new(tp2, 0.);
     let tp4 = RotateZ::new(tp3, 0.);
-    let tp5 = Translate::new(tp4, Vec3::new(300., 200., 450.));
+    let tp5 = Translate::new(tp4, Vec3::new(350., 200., 450.));
+
+    world.add(tp5);
 
     // let tp_obj = OBJ::load_from_file("import_pic/someobj/cloud.obj", white, 0., 1.);
     // let tp1 = Translate::new(tp_obj, Vec3::new(250., 20., 300.));
 
-    world.add(tp5);
+    let tp_obj2 = OBJ::load_from_file("import_pic/someobj/guy.obj", 0., 1.);
+    let t1 = Zoom::new(tp_obj2, Vec3::new(15., 15., 15.));
+    let t2 = RotateY::new(t1, 150.);
+    let t3 = Translate::new(t2, Vec3::new(150., 100., 350.));
+    world.add(t3);
 
     world
 }
@@ -444,7 +450,7 @@ fn main() {
     let quality = 100; // From 0 to 100
     let path = "output/output.jpg";
 
-    let samples_per_pixel = 1000;
+    let samples_per_pixel = 50;
     // 每一个像素点由多少次光线来确定
     let max_depth = 50;
 

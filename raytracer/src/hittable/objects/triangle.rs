@@ -159,10 +159,11 @@ where
     w: Vec3,
     pub texs: [(f64, f64); 3],
     pub aluminum: Metal,
+    pub is_al: bool,
 }
 
 impl<T: Material> OBJTriangle<T> {
-    pub fn new(point: [Vec3; 3], _texs: [(f64, f64); 3], _mat: T) -> Self {
+    pub fn new(point: [Vec3; 3], _texs: [(f64, f64); 3], _mat: T, _is_al: bool) -> Self {
         let _i = point[1] - point[0];
         let _j = point[2] - point[0];
         // 表示三角形所在的平面，用来判断是否相交
@@ -186,6 +187,7 @@ impl<T: Material> OBJTriangle<T> {
             w: _w,
             texs: _texs,
             aluminum: Metal::new(Vec3::new(0.8, 0.85, 0.88), 0.),
+            is_al: _is_al,
         }
     }
 
@@ -253,10 +255,12 @@ impl<T: Material> Hittable for OBJTriangle<T> {
                     };
                     rec.set_face_normal(r, self.normal);
 
-                    // 为了特化，把材质修改为铝
-                    if _u > 0.4 && _u < 1. && _v > 0.6 && _v < 0.8 {
-                    } else {
-                        rec.mat = &self.aluminum;
+                    // 为了特化，把材质修改为铝，实现金属材质的反射效果
+                    if self.is_al {
+                        if _u > 0.4 && _u < 1. && _v > 0.6 && _v < 0.8 {
+                        } else {
+                            rec.mat = &self.aluminum;
+                        }
                     }
 
                     return Some(rec);

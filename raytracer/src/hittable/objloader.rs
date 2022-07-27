@@ -33,6 +33,14 @@ impl OBJ {
 
         let mut objects: HittableList = Default::default();
 
+        // 特判
+        let is_al;
+        if file_name == "import_pic/someobj/thomas.obj" {
+            is_al = true;
+        } else {
+            is_al = false;
+        }
+
         // for (_i, m) in mats.iter().enumerate() {
         //     println!("i = {}", _i);
         //     println!("name : {}", m.name);
@@ -114,6 +122,7 @@ impl OBJ {
                         texs[id[2] as usize],
                     ],
                     mat,
+                    is_al,
                 );
                 // tri.normal = (normals[id[0] as usize] + normals[id[1] as usize] + normals[id[2] as usize]) / 3.;
                 objects.add(tri);
