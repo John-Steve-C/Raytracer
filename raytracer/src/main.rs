@@ -12,7 +12,7 @@ use hittable::{
         rotate::{RotateX, RotateZ},
         zoom::Zoom,
     },
-    objects::triangle::Triangle,
+    // objects::triangle::Triangle,
     objloader::OBJ,
 };
 use image::{ImageBuffer, RgbImage};
@@ -118,21 +118,15 @@ fn add_cornell_lights() -> HittableList {
     let light = DiffuseLight::new_from_color(Vec3::new(15., 15., 15.));
     // lights.add(XZRect::new(213., 343., 227., 332., 554., light));
     // lights.add(XZRect::new(213., 343., 227., 332., 1., light));
-    lights.add(YZRect::new(213., 343., 227., 332., 1., light));
-    lights.add(YZRect::new(213., 343., 227., 332., 554., light));
+    // lights.add(YZRect::new(213., 343., 227., 332., 1., light));
+    // lights.add(YZRect::new(213., 343., 227., 332., 554., light));
+
     lights.add(Cube::new(
-        Vec3::new(213., 530., 227.),
-        Vec3::new(343., 550., 332.),
+        Vec3::new(213., 530., 127.),
+        Vec3::new(343., 550., 232.),
         light,
     ));
-    // lights.add(Triangle::new(
-    //     [
-    //         Vec3::new(213., 1., 227.),
-    //         Vec3::new(343., 1., 227.),
-    //         Vec3::new(283., 1., 332.),
-    //     ],
-    //     light,
-    // ));
+    lights.add(XYRect::new(50., 505., 50., 382., -801., light));
 
     lights
 }
@@ -254,33 +248,60 @@ fn scene_book2() -> HittableList {
 fn cornell_box() -> HittableList {
     let mut world: HittableList = Default::default();
 
-    let red = Lambertian::new_from_color(Vec3::new(0.65, 0.05, 0.05));
+    // let red = Lambertian::new_from_color(Vec3::new(0.65, 0.05, 0.05));
     let white = Lambertian::new_from_color(Vec3::new(0.73, 0.73, 0.73));
-    let green = Lambertian::new_from_color(Vec3::new(0.12, 0.45, 0.15));
-    let grey = Lambertian::new_from_color(Vec3::new(0.53, 0.53, 0.53));
+    // let green = Lambertian::new_from_color(Vec3::new(0.12, 0.45, 0.15));
+    // let grey = Lambertian::new_from_color(Vec3::new(0.53, 0.53, 0.53));
     let light = DiffuseLight::new_from_color(Vec3::new(15., 15., 15.));
     // 用颜色来控制亮度？
 
-    world.add(YZRect::new(0., 555., 0., 555., 555., white));
-    world.add(YZRect::new(0., 555., 0., 555., 0., white));
+    world.add(YZRect::new(
+        -100.,
+        620.,
+        -400.,
+        785.,
+        855.,
+        Lambertian::new(ImageTexture::new_from_file("import_pic/vapor.png")),
+    ));
+    world.add(YZRect::new(
+        -100.,
+        620.,
+        -400.,
+        785.,
+        -300.,
+        Lambertian::new(ImageTexture::new_from_file("import_pic/disco.png")),
+    ));
+    // 遮挡层，为了实现金属反光
+    world.add(YZRect::new(-100., 620., -802., 100., -299., white));
+    world.add(YZRect::new(-100., 620., -802., 100., 854., white));
 
     // world.add(Flipface::new(XZRect::new(
     //     213., 343., 227., 332., 554., light,
     // )));
     // world.add(XZRect::new(213., 343., 227., 332., 1., light));
-    world.add(YZRect::new(213., 343., 227., 332., 1., light));
-    world.add(Flipface::new(YZRect::new(
-        213., 343., 227., 332., 554., light,
-    )));
+    // world.add(YZRect::new(213., 343., 227., 332., 1., light));
+    // world.add(Flipface::new(YZRect::new(
+    //     213., 343., 227., 332., 554., light,
+    // )));
+
     world.add(Flipface::new(Cube::new(
-        Vec3::new(213., 530., 227.),
-        Vec3::new(343., 550., 332.),
+        Vec3::new(213., 530., 127.),
+        Vec3::new(343., 550., 232.),
         light,
     )));
+    world.add(XYRect::new(50., 505., 50., 382., -801., light));
+    world.add(XYRect::new(-200., 755., 0., 555., -802., white));
 
-    world.add(XZRect::new(0., 555., 0., 555., 0., white));
-    world.add(XZRect::new(0., 555., 0., 555., 555., white));
-    world.add(XYRect::new(0., 555., 0., 555., 555., white));
+    world.add(XZRect::new(-200., 755., -802., 555., 0., white));
+    world.add(XZRect::new(-200., 755., -802., 555., 555., white));
+    world.add(XYRect::new(
+        -200.,
+        755.,
+        0.,
+        555.,
+        500.,
+        Lambertian::new(ImageTexture::new_from_file("import_pic/punk.png")),
+    ));
 
     // let aluminum = Metal::new(Vec3::new(0.8, 0.85, 0.88), 0.);
     // let box1 = Cube::new(Vec3::new(0., 0., 0.), Vec3::new(165., 330., 165.), white);
@@ -312,11 +333,11 @@ fn cornell_box() -> HittableList {
     // let tp_obj = OBJ::load_from_file("import_pic/someobj/10485_Baseball_bat_v1_max2011_iteration-2.obj", 0., 1.);
     let tp_obj = OBJ::load_from_file("import_pic/someobj/thomas.obj", 0., 1.);
 
-    let tp1 = Zoom::new(tp_obj, Vec3::new(20., 20., 20.));
-    let tp2 = RotateY::new(tp1, 210.);
+    let tp1 = Zoom::new(tp_obj, Vec3::new(35., 35., 35.));
+    let tp2 = RotateY::new(tp1, 220.);
     let tp3 = RotateX::new(tp2, 0.);
     let tp4 = RotateZ::new(tp3, 0.);
-    let tp5 = Translate::new(tp4, Vec3::new(350., 200., 450.));
+    let tp5 = Translate::new(tp4, Vec3::new(500., 100., 300.));
 
     world.add(tp5);
 
@@ -324,9 +345,9 @@ fn cornell_box() -> HittableList {
     // let tp1 = Translate::new(tp_obj, Vec3::new(250., 20., 300.));
 
     let tp_obj2 = OBJ::load_from_file("import_pic/someobj/guy.obj", 0., 1.);
-    let t1 = Zoom::new(tp_obj2, Vec3::new(15., 15., 15.));
-    let t2 = RotateY::new(t1, 150.);
-    let t3 = Translate::new(t2, Vec3::new(150., 100., 350.));
+    let t1 = Zoom::new(tp_obj2, Vec3::new(20., 20., 20.));
+    let t2 = RotateY::new(t1, 130.);
+    let t3 = Translate::new(t2, Vec3::new(-50., 50., 150.));
     world.add(t3);
 
     world
@@ -444,13 +465,13 @@ fn main() {
     print!("{esc}[2J{esc}[1;1H", esc = 27 as char); // Set cursor position as 1,1
 
     // ----------------------设定图像的内容-------------------------
-    let aspect_ratio = 1.;
+    let aspect_ratio = 16. / 9.;
     let width = 800;
     let height = (width as f64 / aspect_ratio) as u32;
     let quality = 100; // From 0 to 100
     let path = "output/output.jpg";
 
-    let samples_per_pixel = 50;
+    let samples_per_pixel = 1000;
     // 每一个像素点由多少次光线来确定
     let max_depth = 50;
 
