@@ -1,6 +1,7 @@
 pub mod instance;
 pub mod objects;
 pub mod objloader;
+pub mod stlloader;
 
 use std::f64::consts::PI;
 

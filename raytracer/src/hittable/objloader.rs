@@ -9,6 +9,7 @@ use crate::{
 
 pub struct OBJ {
     // 导入的 obj 模型由许多 三角形 组成
+    // 支持贴图功能
     pub triangles: BvhNode,
 }
 

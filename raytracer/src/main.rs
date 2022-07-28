@@ -13,7 +13,7 @@ use hittable::{
         zoom::Zoom,
     },
     // objects::triangle::Triangle,
-    objloader::OBJ,
+    objloader::OBJ, stlloader::STL,
 };
 use image::{ImageBuffer, RgbImage};
 
@@ -264,6 +264,13 @@ fn cornell_box() -> HittableList {
     let rt2 = RotateY::new(box2, -18.);
     let tr2 = Translate::new(rt2, Vec3::new(130., 0., 65.));
     world.add(tr2);
+
+    let obj = STL::load_from_file("import_pic/someobj/astronaut.stl", 0., 1., red);
+    let t1 = Zoom::new(obj, Vec3::new(1., 1., 1.));
+    let t2 = RotateX::new(t1, 90.);
+    let t3 = RotateY::new(t2, 180.);
+    let t4 = Translate::new(t3, Vec3::new(450., 350., 400.));
+    world.add(t4);
 
     world
 }
