@@ -37,6 +37,14 @@ impl<T: Hittable> Hittable for Zoom<T> {
             None
         }
     }
+
+    fn pdf_value(&self, o: Vec3, v: Vec3) -> f64 {
+        self.now_box.pdf_value(o, v) + self.factor.length()
+    }
+
+    fn random(&self, o: Vec3) -> Vec3 {
+        self.now_box.random(o)
+    }
 }
 
 impl<T: Hittable> Zoom<T> {

@@ -26,8 +26,6 @@
 
 对于相机，我们考虑了很多，从最基本的位置、方向、旋转角度，到观察的广角、光圈、景深的实现
 
-对于 ray_color 函数，实际上我们的操作，是用随机数值来估计一些不容易积分的函数值，借此得到光线照射到物体上的颜色
-
 ### utility.rs
 
 一些功能函数，比如弧度转化，随机数生成`random_double`（真随机，使用的是 `rand::Rng`, 函数为 `rand::thread_rng()`）
@@ -49,9 +47,19 @@
 - 球体 sphere
 - 和坐标轴垂直的长方形 aarect
 - 由 aarect 围成的长方体 cube
-- `instance` 文件夹：
+- 三角形 triangle
 
 同时，在 mod.rs 中实现了 HitRecord、HittableList 类，以及 Hittable 这一特性
+
+#### objloader.rs
+
+用来导入 OBJ 文件。
+
+将需要导入的 OBJ 文件放入 import_obj/someobj 文件夹中。
+
+如果需要实现金属化贴图，需要手动在 loader 中特判文件名称，以及当前坐标的颜色，同时在 OBJTriangle 中存储目标材质。
+
+> 事实上，按照这种写法，可以把特定颜色的 ImageTexture 都替换为某一种材质，只需要正确地进行 RGB 判断即可
 
 ### material
 
@@ -76,7 +84,9 @@
 
 ### optimiaztion
 
-1. 利用了 BVH（Bounding Volume Hierarchies）来加快渲染速度，实现的模型为 AABB（Axis-Aligned Bounding Boxes）
+1. BVH（Bounding Volume Hierarchies）
+
+目的：加快渲染速度，实现的模型为 AABB（Axis-Aligned Bounding Boxes）
 
 简单来说，就是把所有的球用长方体包起来，让光线与球相撞 `->` 光线和长方体相撞。
 
@@ -84,23 +94,27 @@
 
 对于 obj_loader，往往有上万个三角形，所以 BVH 是必需的。
 
-可以采用更好的算法来加速渲染，比如八叉树、包围球等等
+> 可以采用更好的算法来加速渲染，比如八叉树、包围球等等
 
 2. PDF (Probability Density Function)
 
-目的：为了强调某些光线，突出明暗，模拟更真实的场景
+目的：为了强调某些光线，突出明暗，更快地消除噪点，模拟更真实的场景
 
 $P(x\in[a,b])=\int_a^b p(t) dt$ 。其中 $P(x)$ 为概率分布函数，$p(x)$ 为概率密度函数。
 
 算法：[蒙特卡洛积分法](https://zhuanlan.zhihu.com/p/333314002)，用 **随机抽样** 来 **无限逼近** 计算结果
+
 $$
 F_n(x)=\frac {1}{n} \Sigma_{k=1}^n \frac {f(x_k)}{pdf(x_k)}
 $$
+
 事实上，任何合理的 pdf 都能大约估计出积分的值。但是 pdf 越近似被积函数 f ，其收敛得越快。
 
 具体说明：重要性采样（Importance Sampling）
 
-选择不均匀（不为常数）的 pdf，就可以加速算式收敛（计算积分）的速度，同时更多地考虑（接收）某一部分发出的光线（一般是光源），防止不需要的部分发出过多的 “noise”（减少其权重），干扰成像。
+选择不均匀（不为常数）的 pdf，就可以加速算式收敛（计算积分）的速度
+
+同时更多地接收某一部分发出的光线（一般是光源），防止不需要的部分发出过多的 “noise”/小黑点（减少其权重），干扰成像。
 
 - CosinePDF：每个物体反射产生的光线
 - HittablePDF：更多地接收来自（光源）的光线
@@ -108,30 +122,20 @@ $$
 
 ### texture
 
-为材料添加纹理，代码上体现为：
+为一个 material 添加纹理
 
-```rust
-#[derive(Clone)]
-pub struct Lambertian<T> 
-where
-	T : Texture
-{
-    pub albedo: T,
-}
-```
-
-即只有具有 `Texture` 这一 `trait` 的变量类型，才能为其中的 `albedo` 赋值
-
-目前实现了
+包括以下几类：
 
 - solid：纯色
 - checker：棋盘状的纹理
-- perlin：利用 perlin算法（自然噪声发生的伪随机算法）计算出的白噪声图形（噪点？），随后加入了平滑优化/频率控制/防止网格化，最后得到大理石纹理
-- image：实现贴图功能
+- perlin：利用 perlin算法（自然噪声发生的伪随机算法）计算出的白噪声图形（噪点？），随后加入了平滑优化/频率控制/防止网格化，最后得到**大理石**纹理
+- image：实现贴图功能，包括 objects 文件夹中的物体，以及对导入的 OBJ 进行贴图
 
 ### main.rs
 
 主程序，包括了多线程部分。
+
+我采用的方法是，把图片沿水平方向分割为 16 条（笔记本恰有16个 CPU），然后同时渲染这些长条。
 
 - `ray_color` 函数：计算当前光线的颜色，`world` 表示舞台中的所有物体，`lights` 表示需要着重考虑从哪些位置发出的光线。
 
@@ -154,12 +158,27 @@ where
       - time：41 min `->` 5 min 43 s，
       - CPU 利用率：11% `->` 80%
 
-- [x] track 1 : 把 Arc 修改为 泛型
-- [x] track 2 : 
-- [ ] track 7 : ​实现 code generation 功能
-- [x] track 8 : 实现 obj 导入
+- [x] track 1 : 把 Arc 修改为 引用
+- [x] track 2 : 把 引用 修改为 泛型（除了 BvhNode、HittableList）
+- [ ] track 3 : ​实现 code generation，即利用过程宏进行静态预编译
+
+    过程宏分为三类：
+    - 派生宏 #[derive]
+    - 属性宏 #[attribute]
+    - 函数式宏 #[proc_macro]
+- [x] track 4 : 将 PDF 中的 引用 修改为 泛型
+- [ ] track 5 : more code generation，从 json/yaml 中调包读取
+- [x] track 6 : 增加对 transform (instance) 的 PDF 支持
+- [ ] track 7 : 利用 benchmark 测试性能前后区别
+- [x] track 8 : 实现 obj 导入，以及对应贴图功能
+
+---
+
+- [x] 补充 Rotate 类，能够沿任意坐标轴旋转
+- [x] 补全 PDF 函数，包括 Rect, Cube, Triangle 
+- [x] 增加了 Zoom 类，用来缩放物体，调整其大小
 - [x] 绘制一张作品
-- [x] 实现金属材质贴图
+- [x] 实现金属材质贴图（任意材质）
 
 ## 作品展示
 
@@ -179,6 +198,6 @@ book3，Image9
 
 ![](https://s3.bmp.ovh/imgs/2022/07/27/6e73f1febe9e0fbb.jpg)
 
-作品
+最终作品
 
 ![](https://s3.bmp.ovh/imgs/2022/07/27/d021ed13672e7b6a.jpg)

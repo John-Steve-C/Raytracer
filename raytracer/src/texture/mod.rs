@@ -1,7 +1,6 @@
 use crate::basic_component::vec3::Vec3;
 pub mod checker;
 pub mod image;
-pub mod obj;
 pub mod perlin;
 pub mod solid;
 
