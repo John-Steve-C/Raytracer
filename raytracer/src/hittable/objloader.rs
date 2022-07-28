@@ -1,6 +1,9 @@
 use crate::{
     basic_component::{ray::Ray, vec3::Vec3},
-    hittable::{objects::triangle::{OBJTriangle, Triangle}, HitRecord, Hittable, HittableList},
+    hittable::{
+        objects::triangle::{OBJTriangle, Triangle},
+        HitRecord, Hittable, HittableList,
+    },
     material::{lambertian::Lambertian, Material},
     optimization::{aabb::AABB, bvh::BvhNode},
     texture::{image::ImageTexture, Texture},
@@ -171,9 +174,9 @@ impl OBJ {
     }
 
     // 只加载模型，不贴图
-    pub fn load_without_texture<T>(file_name: &str, t0: f64, t1: f64, mat : T) -> Self
+    pub fn load_without_texture<T>(file_name: &str, t0: f64, t1: f64, mat: T) -> Self
     where
-        T : Material + 'static + Copy
+        T: Material + 'static + Copy,
     {
         let scene = tobj::load_obj(file_name, &tobj::GPU_LOAD_OPTIONS);
 

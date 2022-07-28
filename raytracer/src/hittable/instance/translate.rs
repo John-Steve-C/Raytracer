@@ -46,7 +46,6 @@ impl<T: Hittable> Hittable for Translate<T> {
     fn random(&self, o: Vec3) -> Vec3 {
         self.now_box.random(o)
     }
-
 }
 
 impl<T: Hittable> Translate<T> {

@@ -13,7 +13,8 @@ use hittable::{
         zoom::Zoom,
     },
     // objects::triangle::Triangle,
-    objloader::OBJ, stlloader::STL,
+    objloader::OBJ,
+    stlloader::STL,
 };
 use image::{ImageBuffer, RgbImage};
 
