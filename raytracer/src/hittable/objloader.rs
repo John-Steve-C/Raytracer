@@ -1,7 +1,7 @@
 use crate::{
     basic_component::{ray::Ray, vec3::Vec3},
-    hittable::{objects::triangle::OBJTriangle, HitRecord, Hittable, HittableList},
-    material::lambertian::Lambertian,
+    hittable::{objects::triangle::{OBJTriangle, Triangle}, HitRecord, Hittable, HittableList},
+    material::{lambertian::Lambertian, Material},
     optimization::{aabb::AABB, bvh::BvhNode},
     texture::{image::ImageTexture, Texture},
 };
@@ -164,6 +164,47 @@ impl OBJ {
         }
 
         // println!("load succeed!");
+
+        Self {
+            triangles: BvhNode::new_from_list(objects, t0, t1),
+        }
+    }
+
+    // 只加载模型，不贴图
+    pub fn load_without_texture<T>(file_name: &str, t0: f64, t1: f64, mat : T) -> Self
+    where
+        T : Material + 'static + Copy
+    {
+        let scene = tobj::load_obj(file_name, &tobj::GPU_LOAD_OPTIONS);
+
+        assert!(scene.is_ok());
+        let (models, _mats) = scene.expect("load obj failed!");
+
+        let mut objects: HittableList = Default::default();
+
+        for (_i, m) in models.iter().enumerate() {
+            let mesh = &m.mesh;
+
+            // 点并不是按顺序排列的，所以不能直接读取
+            let mut pos = Vec::<_>::new();
+            for p in mesh.positions.chunks(3) {
+                // 以 3 为步长，进行切片（slices）
+                pos.push(Vec3::new(p[0] as f64, p[1] as f64, p[2] as f64));
+            }
+
+            // 按照 indices 的顺序读取（索引）
+            for id in mesh.indices.chunks(3) {
+                let tri = Triangle::new(
+                    [
+                        pos[id[0] as usize],
+                        pos[id[1] as usize],
+                        pos[id[2] as usize],
+                    ],
+                    mat,
+                );
+                objects.add(tri);
+            }
+        }
 
         Self {
             triangles: BvhNode::new_from_list(objects, t0, t1),

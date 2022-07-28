@@ -266,7 +266,7 @@ fn cornell_box() -> HittableList {
     world.add(tr2);
 
     let obj = STL::load_from_file("import_pic/someobj/astronaut.stl", 0., 1., red);
-    let t1 = Zoom::new(obj, Vec3::new(1., 1., 1.));
+    let t1 = Zoom::new(obj, Vec3::new(3., 3., 3.));
     let t2 = RotateX::new(t1, 90.);
     let t3 = RotateY::new(t2, 180.);
     let t4 = Translate::new(t3, Vec3::new(450., 350., 400.));

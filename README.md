@@ -172,7 +172,7 @@ $$
 - [ ] track 5 : more code generation，从 json/yaml 中调包读取
 - [x] track 6 : 增加对 transform (instance) 的 PDF 支持
 - [ ] track 7 : 利用 benchmark 测试性能前后区别
-- [x] track 8 : 实现 obj 导入，以及对应贴图功能
+- [x] track 8 : 实现 obj 导入，以及对应贴图功能。同时支持 stl 文件导入
 
 ---
 
@@ -181,6 +181,7 @@ $$
 - [x] 增加了 Zoom 类，用来缩放物体，调整其大小
 - [x] 绘制一张作品
 - [x] 实现金属材质贴图（任意材质）
+- [x] 学习 BRDF（双向反射分布函数），模拟真实的物理模型
 
 ## 作品展示
 
