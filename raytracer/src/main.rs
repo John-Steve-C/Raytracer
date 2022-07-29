@@ -79,13 +79,15 @@ pub fn ray_color(
     if let Some(rec) = world.hit(r, 0.001, INFINITY) {
         emitted = rec.mat.emitted(r, rec, rec.u, rec.v, rec.p);
 
-        //考虑金属的反射
+        //考虑材质的散射
         if let Some(srec) = rec.mat.scatter(r, rec) {
+            //除了 Lambertian，都会发生镜面反射
             if srec.is_specular {
                 return srec.attenuation
                     * ray_color(srec.scattered, background, world, lights, depth - 1);
             }
 
+            // Lambertian 考虑 PDF，加快渲染，提高准确性
             let p0 = HittablePDF::new(lights, rec.p);
             let p1 = srec.cos_pdf;
             let mixed = MixturePDF::new(&p0, p1);
@@ -93,14 +95,14 @@ pub fn ray_color(
             let scattered = Ray::new(rec.p, mixed.generate(), r.tm);
             let pdf_val = mixed.value(scattered.dir);
 
-            // 如果有，就是二者叠加的颜色
+            // 二者叠加
             emitted
                 + srec.attenuation
                     * rec.mat.scattering_pdf(r, rec, scattered)
                     * ray_color(scattered, background, world, lights, depth - 1)
                     / pdf_val
         } else {
-            // 金属没有反射，直接发光
+            // Dissuse light 不会散射，只发光
             emitted
         }
     } else {
